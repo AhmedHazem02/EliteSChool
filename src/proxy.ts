@@ -1,6 +1,7 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { locales, defaultLocale } from '@/i18n';
+import { updateSession } from '@/lib/supabase/middleware';
 
 const intlMiddleware = createMiddleware({
   locales,
@@ -11,23 +12,34 @@ const intlMiddleware = createMiddleware({
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Protect /admin routes
-  if (pathname.startsWith('/admin')) {
-    // Auth check via Supabase cookie
-    const supabaseToken = request.cookies.get('sb-access-token')?.value
-      || request.cookies.get('supabase-auth-token')?.value;
+  // Refresh Supabase auth session on every request (keeps tokens valid)
+  const sessionResponse = await updateSession(request);
 
-    // Check for any supabase session cookie
+  // Skip i18n redirect for /login — serve it directly
+  if (pathname === '/login') {
+    return sessionResponse;
+  }
+
+  // Protect /admin routes — skip i18n and check auth
+  if (pathname.startsWith('/admin')) {
     const hasSession = Array.from(request.cookies.getAll()).some(
       (cookie) => cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token')
     );
 
-    if (!supabaseToken && !hasSession) {
+    if (!hasSession) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
+
+    return sessionResponse;
   }
 
-  return intlMiddleware(request);
+  // For locale routes, run intl middleware but also preserve session cookies
+  const intlResponse = intlMiddleware(request);
+  // Copy session cookies onto the intl response
+  sessionResponse.cookies.getAll().forEach((cookie) => {
+    intlResponse.cookies.set(cookie.name, cookie.value);
+  });
+  return intlResponse;
 }
 
 export const config = {

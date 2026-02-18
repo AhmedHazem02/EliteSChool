@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import { notFound } from 'next/navigation';
 import AcademicSystemForm from '@/components/admin/AcademicSystemForm';
 
@@ -9,6 +10,8 @@ interface Props {
 export default async function AcademicSystemEditPage({ params }: Props) {
   const { id } = await params;
   const isNew = id === 'new';
+  const locale = await getAdminLocale();
+  const t = adminT(locale);
 
   if (!isNew) {
     const supabase = await createClient();
@@ -28,7 +31,7 @@ export default async function AcademicSystemEditPage({ params }: Props) {
 
     return (
       <div>
-        <h1 className="text-2xl font-bold text-navy font-playfair mb-8">Edit System</h1>
+        <h1 className="text-2xl font-bold text-navy font-playfair mb-8">{t('systems.editSystem')}</h1>
         <AcademicSystemForm initialData={system} fees={fees ?? []} />
       </div>
     );
@@ -36,7 +39,7 @@ export default async function AcademicSystemEditPage({ params }: Props) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy font-playfair mb-8">New Academic System</h1>
+      <h1 className="text-2xl font-bold text-navy font-playfair mb-8">{t('systems.newSystem')}</h1>
       <AcademicSystemForm fees={[]} />
     </div>
   );

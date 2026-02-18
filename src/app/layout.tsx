@@ -1,8 +1,13 @@
-// Root layout — html/body are handled by [locale]/layout.tsx
+import '@/styles/globals.css';
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
 }

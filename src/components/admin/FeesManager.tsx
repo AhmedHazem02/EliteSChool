@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface FeeRow {
@@ -27,6 +28,8 @@ const emptyRow = (): FeeRow => ({
 });
 
 export default function FeesManager({ fees, onChange }: FeesManagerProps) {
+  const { t } = useAdminI18n();
+
   function update(i: number, key: keyof FeeRow, value: string | number) {
     const updated = fees.map((f, fi) => fi === i ? { ...f, [key]: value } : f);
     onChange(updated);
@@ -41,7 +44,7 @@ export default function FeesManager({ fees, onChange }: FeesManagerProps) {
       {fees.map((fee, i) => (
         <div key={i} className="bg-white border border-navy/10 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-navy/60">Row {i + 1}</span>
+            <span className="text-sm font-medium text-navy/60">{t('form.row')} {i + 1}</span>
             <button onClick={() => remove(i)} className="text-red-400 hover:text-red-600 transition-colors">
               <Trash2 size={15} />
             </button>
@@ -49,19 +52,19 @@ export default function FeesManager({ fees, onChange }: FeesManagerProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">Grade Level (EN)</Label>
+              <Label className="text-xs">{t('form.gradeLevelEn')}</Label>
               <Input value={fee.grade_level_en} onChange={(e) => update(i, 'grade_level_en', e.target.value)} placeholder="e.g. Primary (Grades 1-5)" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Grade Level (AR)</Label>
+              <Label className="text-xs">{t('form.gradeLevelAr')}</Label>
               <Input value={fee.grade_level_ar} onChange={(e) => update(i, 'grade_level_ar', e.target.value)} placeholder="الابتدائي" dir="rtl" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Fee Amount</Label>
+              <Label className="text-xs">{t('form.feeAmount')}</Label>
               <Input type="number" value={fee.fee_amount} onChange={(e) => update(i, 'fee_amount', parseFloat(e.target.value) || 0)} min={0} step={500} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Currency</Label>
+              <Label className="text-xs">{t('form.currency')}</Label>
               <Input value={fee.currency} onChange={(e) => update(i, 'currency', e.target.value)} placeholder="EGP" />
             </div>
           </div>
@@ -75,7 +78,7 @@ export default function FeesManager({ fees, onChange }: FeesManagerProps) {
         onClick={() => onChange([...fees, emptyRow()])}
         className="gap-1.5"
       >
-        <Plus size={15} /> Add Grade Level
+        <Plus size={15} /> {t('form.addGradeLevel')}
       </Button>
     </div>
   );

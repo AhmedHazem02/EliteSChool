@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
 import { Save, Trash2 } from 'lucide-react';
 import { slugify } from '@/lib/utils';
@@ -30,6 +31,7 @@ interface PostFormProps {
 export default function PostForm({ initialData }: PostFormProps) {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useAdminI18n();
 
   const [titleEn, setTitleEn] = useState(initialData?.title_en ?? '');
   const [titleAr, setTitleAr] = useState(initialData?.title_ar ?? '');
@@ -72,7 +74,7 @@ export default function PostForm({ initialData }: PostFormProps) {
 
   async function handleDelete() {
     if (!initialData?.id) return;
-    if (!confirm('Delete this post permanently?')) return;
+    if (!confirm(t('form.deletePostConfirm'))) return;
     await supabase.from('posts').delete().eq('id', initialData.id);
     router.push('/admin/posts');
     router.refresh();
@@ -81,14 +83,14 @@ export default function PostForm({ initialData }: PostFormProps) {
   return (
     <div className="max-w-4xl space-y-6">
       <BilingualInput
-        labelEn="Title (English)" labelAr="Title (Arabic)"
+        labelEn={t('form.titleEn')} labelAr={t('form.titleAr')}
         valueEn={titleEn} valueAr={titleAr}
         onChangeEn={setTitleEn} onChangeAr={setTitleAr}
         required
       />
 
       <BilingualInput
-        labelEn="Content (English)" labelAr="Content (Arabic)"
+        labelEn={t('form.contentEn')} labelAr={t('form.contentAr')}
         valueEn={contentEn} valueAr={contentAr}
         onChangeEn={setContentEn} onChangeAr={setContentAr}
         multiline rows={10}
@@ -96,11 +98,11 @@ export default function PostForm({ initialData }: PostFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Type</Label>
+          <Label>{t('form.type')}</Label>
           <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="news or event" />
         </div>
         <div className="space-y-1.5">
-          <Label>Image URL</Label>
+          <Label>{t('form.imageUrl')}</Label>
           <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" />
         </div>
       </div>
@@ -113,7 +115,7 @@ export default function PostForm({ initialData }: PostFormProps) {
           onChange={(e) => setPublished(e.target.checked)}
           className="w-4 h-4 accent-gold"
         />
-        <Label htmlFor="published">Published (visible on public site)</Label>
+        <Label htmlFor="published">{t('form.publishedVisible')}</Label>
       </div>
 
       {error && (
@@ -123,11 +125,11 @@ export default function PostForm({ initialData }: PostFormProps) {
       <div className="flex items-center gap-3">
         <Button onClick={handleSave} disabled={saving} size="lg">
           <Save size={16} className="mr-2" />
-          {saving ? 'Saving…' : 'Save Post'}
+          {saving ? t('form.saving') : t('form.savePost')}
         </Button>
         {initialData?.id && (
           <Button onClick={handleDelete} variant="outline" size="lg" className="text-red-600 border-red-200 hover:bg-red-50">
-            <Trash2 size={16} className="mr-2" /> Delete
+            <Trash2 size={16} className="mr-2" /> {t('form.delete')}
           </Button>
         )}
       </div>

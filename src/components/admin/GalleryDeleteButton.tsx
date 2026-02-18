@@ -3,15 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import { Trash2 } from 'lucide-react';
 
 export default function GalleryDeleteButton({ id }: { id: string }) {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useAdminI18n();
   const [loading, setLoading] = useState(false);
 
   async function handleDelete() {
-    if (!confirm('Delete this image?')) return;
+    if (!confirm(t('gallery.deleteConfirm'))) return;
     setLoading(true);
     await supabase.from('gallery').delete().eq('id', id);
     setLoading(false);

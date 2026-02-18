@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
 import FeesManager from './FeesManager';
 import { Save, Trash2 } from 'lucide-react';
@@ -40,6 +41,7 @@ interface Props {
 export default function AcademicSystemForm({ initialData, fees: initialFees }: Props) {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useAdminI18n();
 
   const [nameEn, setNameEn] = useState(initialData?.title_en ?? '');
   const [nameAr, setNameAr] = useState(initialData?.title_ar ?? '');
@@ -55,7 +57,7 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
     setSaving(true);
     setError(null);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       title_en: nameEn, title_ar: nameAr,
       description_en: descEn, description_ar: descAr,
       is_active: isActive, sort_order: parseInt(sortOrder, 10),
@@ -67,6 +69,9 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
       const { error: dbErr } = await supabase.from('academic_systems').update(payload).eq('id', systemId);
       if (dbErr) { setError(dbErr.message); setSaving(false); return; }
     } else {
+      // slug is required (NOT NULL UNIQUE)
+      const slug = nameEn.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '') || `system-${Date.now()}`;
+      payload.slug = slug;
       const { data, error: dbErr } = await supabase.from('academic_systems').insert(payload).select('id').single();
       if (dbErr || !data) { setError(dbErr?.message ?? 'Insert failed'); setSaving(false); return; }
       systemId = data.id;
@@ -94,7 +99,7 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
 
   async function handleDelete() {
     if (!initialData?.id) return;
-    if (!confirm('Delete this system and all its fees?')) return;
+    if (!confirm(t('form.deleteSystemConfirm'))) return;
     await supabase.from('academic_systems').delete().eq('id', initialData.id);
     router.push('/admin/academic-systems');
     router.refresh();
@@ -103,13 +108,13 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
   return (
     <div className="max-w-4xl space-y-6">
       <BilingualInput
-        labelEn="System Name (EN)" labelAr="System Name (AR)"
+        labelEn={t('form.systemNameEn')} labelAr={t('form.systemNameAr')}
         valueEn={nameEn} valueAr={nameAr}
         onChangeEn={setNameEn} onChangeAr={setNameAr}
         required
       />
       <BilingualInput
-        labelEn="Description (EN)" labelAr="Description (AR)"
+        labelEn={t('form.descriptionEn')} labelAr={t('form.descriptionAr')}
         valueEn={descEn} valueAr={descAr}
         onChangeEn={setDescEn} onChangeAr={setDescAr}
         multiline rows={4}
@@ -117,17 +122,17 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Sort Order</Label>
+          <Label>{t('form.sortOrder')}</Label>
           <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} min={0} />
         </div>
         <div className="flex items-center gap-2 mt-6">
           <input type="checkbox" id="active" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-4 h-4 accent-gold" />
-          <Label htmlFor="active">Active (visible on public site)</Label>
+          <Label htmlFor="active">{t('form.activeVisible')}</Label>
         </div>
       </div>
 
       <div>
-        <h3 className="text-base font-semibold text-navy mb-3">Tuition Fees</h3>
+        <h3 className="text-base font-semibold text-navy mb-3">{t('form.tuitionFees')}</h3>
         <FeesManager fees={fees} onChange={setFees} />
       </div>
 
@@ -138,11 +143,11 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
       <div className="flex items-center gap-3">
         <Button onClick={handleSave} disabled={saving} size="lg">
           <Save size={16} className="mr-2" />
-          {saving ? 'Saving…' : 'Save System'}
+          {saving ? t('form.saving') : t('form.saveSystem')}
         </Button>
         {initialData?.id && (
           <Button onClick={handleDelete} variant="outline" size="lg" className="text-red-600 border-red-200 hover:bg-red-50">
-            <Trash2 size={16} className="mr-2" /> Delete
+            <Trash2 size={16} className="mr-2" /> {t('form.delete')}
           </Button>
         )}
       </div>

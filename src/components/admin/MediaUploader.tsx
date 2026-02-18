@@ -8,12 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GALLERY_CATEGORIES_DATA, STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
+import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function MediaUploader() {
   const router = useRouter();
   const supabase = createClient();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t, locale } = useAdminI18n();
 
   const [file, setFile] = useState<File | null>(null);
   const [captionEn, setCaptionEn] = useState('');
@@ -31,7 +33,7 @@ export default function MediaUploader() {
 
     if (f.size > FILE_SIZE_LIMITS.IMAGE) {
       setStatus('error');
-      setMessage(`File too large. Max ${FILE_SIZE_LIMITS.IMAGE / 1024 / 1024}MB.`);
+      setMessage(`${t('gallery.fileTooLarge')} ${FILE_SIZE_LIMITS.IMAGE / 1024 / 1024}MB.`);
       return;
     }
 
@@ -75,7 +77,7 @@ export default function MediaUploader() {
 
     setProgress(100);
     setStatus('success');
-    setMessage('Image uploaded successfully!');
+    setMessage(t('gallery.uploadSuccess'));
     setFile(null);
     setPreview(null);
     setCaptionEn('');
@@ -88,7 +90,7 @@ export default function MediaUploader() {
 
   return (
     <div className="bg-white border border-navy/10 rounded-2xl p-6 space-y-4">
-      <h3 className="font-semibold text-navy">Upload Image</h3>
+      <h3 className="font-semibold text-navy">{t('gallery.uploadImage')}</h3>
 
       <div
         className="border-2 border-dashed border-navy/20 rounded-xl p-6 text-center cursor-pointer hover:border-gold transition-colors"
@@ -99,7 +101,7 @@ export default function MediaUploader() {
         ) : (
           <div className="space-y-2">
             <Upload className="mx-auto text-navy/30" size={32} />
-            <p className="text-sm text-navy/50">Click to choose an image (max 5MB)</p>
+            <p className="text-sm text-navy/50">{t('gallery.chooseImage')} ({t('gallery.maxSize')})</p>
           </div>
         )}
         <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
@@ -107,24 +109,24 @@ export default function MediaUploader() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label className="text-xs">Caption (EN)</Label>
+          <Label className="text-xs">{t('gallery.captionEn')}</Label>
           <Input value={captionEn} onChange={(e) => setCaptionEn(e.target.value)} placeholder="Caption in English" />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Caption (AR)</Label>
+          <Label className="text-xs">{t('gallery.captionAr')}</Label>
           <Input value={captionAr} onChange={(e) => setCaptionAr(e.target.value)} placeholder="التعليق بالعربي" dir="rtl" />
         </div>
       </div>
 
       <div className="space-y-1 max-w-xs">
-        <Label className="text-xs">Category</Label>
+        <Label className="text-xs">{t('gallery.category')}</Label>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="Select category" />
+            <SelectValue placeholder={t('gallery.selectCategory')} />
           </SelectTrigger>
           <SelectContent>
             {GALLERY_CATEGORIES_DATA.map((cat) => (
-              <SelectItem key={cat.value} value={cat.value}>{cat.labelEn}</SelectItem>
+              <SelectItem key={cat.value} value={cat.value}>{locale === 'ar' ? cat.labelAr : cat.labelEn}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -145,7 +147,7 @@ export default function MediaUploader() {
 
       <Button onClick={handleUpload} disabled={!file || uploading} size="sm">
         <Upload size={15} className="mr-1.5" />
-        {uploading ? 'Uploading…' : 'Upload'}
+        {uploading ? t('gallery.uploading') : t('gallery.upload')}
       </Button>
     </div>
   );

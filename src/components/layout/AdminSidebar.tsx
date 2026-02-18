@@ -7,9 +7,10 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 import { ADMIN_NAV_LINKS } from '@/lib/constants';
+import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import {
   LayoutDashboard, FileText, Image as ImageIcon, GraduationCap,
-  Settings, Users, BookOpen, LogOut, ChevronLeft, ChevronRight, Menu,
+  Settings, Users, BookOpen, LogOut, ChevronLeft, ChevronRight, Menu, Languages,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -22,14 +23,14 @@ const iconMap: Record<string, React.ReactNode> = {
   '/admin/settings': <Settings size={18} />,
 };
 
-const labelMap: Record<string, string> = {
-  'admin.dashboard': 'Dashboard',
-  'admin.submissions': 'Submissions',
-  'admin.content': 'Content',
-  'admin.systems': 'Academic Systems',
-  'admin.posts': 'Posts',
-  'admin.gallery': 'Gallery',
-  'admin.settings': 'Settings',
+const labelKeyMap: Record<string, string> = {
+  'admin.dashboard': 'sidebar.dashboard',
+  'admin.submissions': 'sidebar.submissions',
+  'admin.content': 'sidebar.content',
+  'admin.systems': 'sidebar.systems',
+  'admin.posts': 'sidebar.posts',
+  'admin.gallery': 'sidebar.gallery',
+  'admin.settings': 'sidebar.settings',
 };
 
 interface AdminSidebarProps {
@@ -41,10 +42,15 @@ export default function AdminSidebar({ userEmail }: AdminSidebarProps) {
   const router = useRouter();
   const supabase = createClient();
   const [collapsed, setCollapsed] = useState(false);
+  const { t, locale, setLocale, isRTL } = useAdminI18n();
 
   async function handleLogout() {
     await supabase.auth.signOut();
     router.push('/login');
+  }
+
+  function toggleLanguage() {
+    setLocale(locale === 'en' ? 'ar' : 'en');
   }
 
   return (
@@ -57,12 +63,12 @@ export default function AdminSidebar({ userEmail }: AdminSidebarProps) {
       {/* Logo */}
       <div className={cn('flex items-center gap-3 px-4 py-5 border-b border-white/10', collapsed && 'justify-center')}>
         <div className="relative w-9 h-9 shrink-0">
-          <Image src="/logo.png" alt="Elite" fill className="object-contain brightness-0 invert" />
+          <Image src="/images/logo.png" alt="Elite" fill className="object-contain brightness-0 invert" />
         </div>
         {!collapsed && (
           <span className="font-playfair font-bold text-base leading-tight">
             Elite<br />
-            <span className="text-gold text-xs font-sans font-normal">Admin Panel</span>
+            <span className="text-gold text-xs font-sans font-normal">{t('sidebar.adminPanel')}</span>
           </span>
         )}
       </div>
@@ -73,11 +79,12 @@ export default function AdminSidebar({ userEmail }: AdminSidebarProps) {
           const isActive = link.href === '/admin'
             ? pathname === '/admin'
             : pathname.startsWith(link.href);
+          const label = t(labelKeyMap[link.labelKey] ?? link.labelKey);
           return (
             <Link
               key={link.href}
               href={link.href}
-              title={collapsed ? labelMap[link.labelKey] : undefined}
+              title={collapsed ? label : undefined}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
                 isActive
@@ -86,33 +93,49 @@ export default function AdminSidebar({ userEmail }: AdminSidebarProps) {
               )}
             >
               <span className="shrink-0">{iconMap[link.href]}</span>
-              {!collapsed && <span>{labelMap[link.labelKey]}</span>}
+              {!collapsed && <span>{label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* User + Logout */}
+      {/* Language toggle + User + Logout */}
       <div className="border-t border-white/10 px-2 py-3 space-y-1">
+        {/* Language Toggle */}
+        <button
+          onClick={toggleLanguage}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-white/10 hover:text-white transition-all"
+          title={collapsed ? t('sidebar.language') : undefined}
+        >
+          <Languages size={18} className="shrink-0" />
+          {!collapsed && <span>{t('sidebar.language')}</span>}
+        </button>
+
         {!collapsed && (
           <p className="text-white/40 text-xs px-3 truncate">{userEmail}</p>
         )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-white/70 hover:bg-red-600/20 hover:text-red-300 transition-all"
-          title={collapsed ? 'Sign Out' : undefined}
+          title={collapsed ? t('sidebar.signOut') : undefined}
         >
           <LogOut size={18} className="shrink-0" />
-          {!collapsed && 'Sign Out'}
+          {!collapsed && t('sidebar.signOut')}
         </button>
       </div>
 
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-6 w-6 h-6 rounded-full bg-navy border border-white/20 flex items-center justify-center text-white hover:bg-gold transition-colors shadow"
+        className={cn(
+          'absolute top-6 w-6 h-6 rounded-full bg-navy border border-white/20 flex items-center justify-center text-white hover:bg-gold transition-colors shadow',
+          isRTL ? '-left-3' : '-right-3'
+        )}
       >
-        {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        {collapsed
+          ? (isRTL ? <ChevronLeft size={12} /> : <ChevronRight size={12} />)
+          : (isRTL ? <ChevronRight size={12} /> : <ChevronLeft size={12} />)
+        }
       </button>
     </aside>
   );

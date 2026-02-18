@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import { notFound } from 'next/navigation';
 import PostForm from '@/components/admin/PostForm';
 
@@ -9,6 +10,8 @@ interface Props {
 export default async function AdminPostEditPage({ params }: Props) {
   const { id } = await params;
   const isNew = id === 'new';
+  const locale = await getAdminLocale();
+  const t = adminT(locale);
 
   if (!isNew) {
     const supabase = await createClient();
@@ -21,7 +24,7 @@ export default async function AdminPostEditPage({ params }: Props) {
     if (!post) notFound();
     return (
       <div>
-        <h1 className="text-2xl font-bold text-navy font-playfair mb-8">Edit Post</h1>
+        <h1 className="text-2xl font-bold text-navy font-playfair mb-8">{t('posts.editPost')}</h1>
         <PostForm initialData={post} />
       </div>
     );
@@ -29,7 +32,7 @@ export default async function AdminPostEditPage({ params }: Props) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-navy font-playfair mb-8">New Post</h1>
+      <h1 className="text-2xl font-bold text-navy font-playfair mb-8">{t('posts.newPost')}</h1>
       <PostForm />
     </div>
   );

@@ -11,7 +11,7 @@ export function generateSchoolSchema() {
     '@type': 'School',
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/logo.png`,
+    logo: `${SITE_URL}/images/logo.png`,
     sameAs: [],
     description:
       'Elite Schools — a leading private school offering British, American, and Egyptian national curricula.',
@@ -78,7 +78,7 @@ export function generateArticleSchema(post: {
       name: SITE_NAME,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/logo.png`,
+        url: `${SITE_URL}/images/logo.png`,
       },
     },
     url: post.slug ? `${SITE_URL}/news/${post.slug}` : SITE_URL,

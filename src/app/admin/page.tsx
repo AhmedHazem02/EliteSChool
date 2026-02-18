@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FileText, Image, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
@@ -21,19 +22,21 @@ async function getStats() {
 
 export default async function AdminDashboard() {
   const stats = await getStats();
+  const locale = await getAdminLocale();
+  const t = adminT(locale);
 
   const cards = [
-    { title: 'Admissions', value: stats.admissions, icon: Users, href: '/admin/admissions', color: 'text-burgundy' },
-    { title: 'News Posts', value: stats.posts, icon: FileText, href: '/admin/posts', color: 'text-navy' },
-    { title: 'Gallery Items', value: stats.gallery, icon: Image, href: '/admin/gallery', color: 'text-gold' },
-    { title: 'Academic Systems', value: stats.systems, icon: GraduationCap, href: '/admin/academic-systems', color: 'text-navy' },
+    { title: t('dashboard.admissions'), value: stats.admissions, icon: Users, href: '/admin/admissions', color: 'text-burgundy' },
+    { title: t('dashboard.newsPosts'), value: stats.posts, icon: FileText, href: '/admin/posts', color: 'text-navy' },
+    { title: t('dashboard.galleryItems'), value: stats.gallery, icon: Image, href: '/admin/gallery', color: 'text-gold' },
+    { title: t('dashboard.academicSystems'), value: stats.systems, icon: GraduationCap, href: '/admin/academic-systems', color: 'text-navy' },
   ];
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-navy font-playfair">Dashboard</h1>
-        <p className="text-navy/50 text-sm mt-1">Welcome back — here's an overview</p>
+        <h1 className="text-2xl font-bold text-navy font-playfair">{t('dashboard.title')}</h1>
+        <p className="text-navy/50 text-sm mt-1">{t('dashboard.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -57,14 +60,14 @@ export default async function AdminDashboard() {
       <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Quick Actions</CardTitle>
+            <CardTitle className="text-base">{t('dashboard.quickActions')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {[
-              { label: 'Add News Post', href: '/admin/posts/new' },
-              { label: 'Upload Gallery', href: '/admin/gallery' },
-              { label: 'Edit Homepage Content', href: '/admin/content' },
-              { label: 'View Admissions', href: '/admin/admissions' },
+              { label: t('dashboard.addNewsPost'), href: '/admin/posts/new' },
+              { label: t('dashboard.uploadGallery'), href: '/admin/gallery' },
+              { label: t('dashboard.editHomepage'), href: '/admin/content' },
+              { label: t('dashboard.viewAdmissions'), href: '/admin/admissions' },
             ].map((action) => (
               <Link
                 key={action.href}
@@ -79,13 +82,13 @@ export default async function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Site Status</CardTitle>
+            <CardTitle className="text-base">{t('dashboard.siteStatus')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { label: 'Database', status: 'Connected', ok: true },
-              { label: 'Storage Buckets', status: 'Active', ok: true },
-              { label: 'i18n (AR/EN)', status: 'Enabled', ok: true },
+              { label: t('dashboard.database'), status: t('dashboard.connected'), ok: true },
+              { label: t('dashboard.storageBuckets'), status: t('dashboard.active'), ok: true },
+              { label: t('dashboard.i18n'), status: t('dashboard.enabled'), ok: true },
             ].map((item) => (
               <div key={item.label} className="flex items-center justify-between text-sm">
                 <span className="text-navy/60">{item.label}</span>

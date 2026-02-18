@@ -61,22 +61,20 @@ export default function FAQSection({ locale, faqs = DEFAULT_FAQS }: FAQSectionPr
       <div className="container mx-auto px-4 max-w-3xl">
         <SectionHeader title={t('title')} subtitle={t('subtitle')} />
 
-        <div className="mt-10">
+        <ScrollReveal direction="up" className="mt-10">
           <Accordion type="single" collapsible>
             {faqs.map((faq, i) => (
-              <ScrollReveal key={i} direction="up" delay={i * 0.05}>
-                <AccordionItem value={`faq-${i}`}>
-                  <AccordionTrigger>
-                    {locale === 'ar' ? faq.question_ar : faq.question_en}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    {locale === 'ar' ? faq.answer_ar : faq.answer_en}
-                  </AccordionContent>
-                </AccordionItem>
-              </ScrollReveal>
+              <AccordionItem key={i} value={`faq-${i}`}>
+                <AccordionTrigger>
+                  {locale === 'ar' ? faq.question_ar : faq.question_en}
+                </AccordionTrigger>
+                <AccordionContent>
+                  {locale === 'ar' ? faq.answer_ar : faq.answer_en}
+                </AccordionContent>
+              </AccordionItem>
             ))}
           </Accordion>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );
