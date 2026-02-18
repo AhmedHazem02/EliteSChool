@@ -1,0 +1,212 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Colors */
+  --color-navy: #1A2B45;
+  --color-navy-light: #2A3F5F;
+  --color-navy-dark: #0F1B2D;
+  --color-burgundy: #80182A;
+  --color-burgundy-light: #9A2035;
+  --color-burgundy-dark: #601020;
+  --color-gold: #C9A84C;
+  --color-gold-light: #D4B85C;
+  --color-gold-dark: #A8873A;
+  --color-off-white: #F8F9FA;
+
+  /* Font Families */
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-jakarta: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-tajawal: 'Tajawal', Arial, sans-serif;
+}
+
+:root {
+  /* Primary Colors */
+  --navy:      #1A2B45;
+  --burgundy:  #80182A;
+  --gold:      #C9A84C;
+  --off-white: #F8F9FA;
+
+  /* Extended Palette */
+  --navy-light:    #2A3F5F;
+  --navy-dark:     #0F1B2D;
+  --burgundy-light:#9A2035;
+  --burgundy-dark: #601020;
+  --gold-light:    #D4B85C;
+  --gold-dark:     #A8873A;
+  --white:         #FFFFFF;
+  --gray-100:      #F1F3F5;
+  --gray-200:      #E9ECEF;
+  --gray-300:      #DEE2E6;
+  --gray-500:      #ADB5BD;
+  --gray-700:      #495057;
+  --gray-900:      #212529;
+
+  /* Shadcn/ui compatibility */
+  --background: 248 249 250;
+  --foreground: 26 43 69;
+  --card: 255 255 255;
+  --card-foreground: 26 43 69;
+  --popover: 255 255 255;
+  --popover-foreground: 26 43 69;
+  --primary: 26 43 69;
+  --primary-foreground: 248 249 250;
+  --secondary: 241 243 245;
+  --secondary-foreground: 26 43 69;
+  --muted: 241 243 245;
+  --muted-foreground: 73 80 87;
+  --accent: 201 168 76;
+  --accent-foreground: 26 43 69;
+  --destructive: 128 24 42;
+  --destructive-foreground: 248 249 250;
+  --border: 222 226 230;
+  --input: 222 226 230;
+  --ring: 201 168 76;
+  --radius: 0.5rem;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+  border-color: var(--gray-200);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--off-white);
+  color: var(--navy);
+  font-family: var(--font-jakarta);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* RTL body */
+html[dir="rtl"] body {
+  font-family: var(--font-tajawal);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair);
+  color: var(--navy);
+  line-height: 1.2;
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6 {
+  font-family: var(--font-tajawal);
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(201, 168, 76, 0.3);
+  color: var(--navy-dark);
+}
+
+/* Gold divider line */
+.gold-divider {
+  width: 4rem;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 9999px;
+}
+
+/* Gradient text */
+.gradient-text-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass morphism */
+.glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(26, 43, 69, 0.8);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dark);
+}
+
+/* Section padding (responsive) */
+.section-padding {
+  padding-inline: 1rem;
+  padding-block: 3rem;
+}
+@media (min-width: 640px) {
+  .section-padding {
+    padding-inline: 1.5rem;
+    padding-block: 4rem;
+  }
+}
+@media (min-width: 768px) {
+  .section-padding {
+    padding-inline: 2rem;
+    padding-block: 5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-inline: 3rem;
+    padding-block: 6rem;
+  }
+}
+@media (min-width: 1280px) {
+  .section-padding {
+    padding-inline: 5rem;
+  }
+}
+
+/* Navbar link underline animation */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background-color: var(--gold);
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
