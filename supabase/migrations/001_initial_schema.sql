@@ -189,6 +189,7 @@ CREATE TABLE public.admissions (
   created_at       TIMESTAMPTZ DEFAULT NOW()
 );
 
+
 ALTER TABLE public.admissions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Anyone can insert admissions" ON public.admissions
