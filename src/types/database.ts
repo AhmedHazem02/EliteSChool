@@ -22,6 +22,7 @@ export interface Database {
           address_ar: string | null;
           map_url: string | null;
           hero_video_url: string | null;
+          hero_image_url: string | null;
           facebook_url: string | null;
           instagram_url: string | null;
           twitter_url: string | null;

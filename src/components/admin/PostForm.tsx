@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
+import SettingsMediaField from './SettingsMediaField';
+import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
 import { Save, Trash2 } from 'lucide-react';
 import { slugify } from '@/lib/utils';
 
@@ -102,8 +104,14 @@ export default function PostForm({ initialData }: PostFormProps) {
           <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="news or event" />
         </div>
         <div className="space-y-1.5">
-          <Label>{t('form.imageUrl')}</Label>
-          <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" />
+          <SettingsMediaField
+            label={t('form.thumbnail')}
+            value={imageUrl}
+            onChange={setImageUrl}
+            bucket={STORAGE_BUCKETS.POST_THUMBNAILS}
+            mediaType="image"
+            maxSize={FILE_SIZE_LIMITS.THUMBNAIL}
+          />
         </div>
       </div>
 

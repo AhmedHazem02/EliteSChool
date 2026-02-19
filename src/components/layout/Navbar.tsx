@@ -9,6 +9,8 @@ import { NAV_LINKS } from '@/lib/constants';
 import type { Locale } from '@/types';
 import LanguageSwitcher from './LanguageSwitcher';
 import MobileMenu from './MobileMenu';
+import MagneticButton from '@/components/shared/MagneticButton';
+import ThemeToggle from '@/components/shared/ThemeToggle';
 
 interface NavbarProps {
   locale: Locale;
@@ -87,14 +89,17 @@ export default function Navbar({ locale }: NavbarProps) {
 
             {/* Desktop Right Side */}
             <div className="hidden lg:flex items-center gap-3">
+              <ThemeToggle />
               <LanguageSwitcher locale={locale} />
-              <Link
-                href={`/${locale}/admissions`}
-                className="relative overflow-hidden bg-burgundy text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(201,168,76,0.3)] active:scale-[0.98] group"
-              >
-                <span className="relative z-10">{t('nav.applyNow')}</span>
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </Link>
+              <MagneticButton strength={0.2}>
+                <Link
+                  href={`/${locale}/admissions`}
+                  className="relative overflow-hidden bg-burgundy text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(201,168,76,0.35)] active:scale-[0.98] group btn-ripple"
+                >
+                  <span className="relative z-10">{t('nav.applyNow')}</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Link>
+              </MagneticButton>
             </div>
 
             {/* Mobile: Language + Hamburger */}

@@ -32,16 +32,19 @@ export default function ProgramsSection({ locale, systems }: ProgramsSectionProp
             return (
               <ScrollReveal key={sys.id} direction="up" delay={i * 0.1}>
                 <Link href={`/${locale}/programs/${sys.id}`} className="group block h-full">
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-gold transition-all duration-300 h-full flex flex-col">
-                    {/* Top color bar */}
-                    <div className="h-2 bg-gradient-to-r from-navy to-burgundy" />
+                  <div className="relative bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500 h-full flex flex-col card-shine card-lift">
+                    {/* Animated top color bar */}
+                    <div className="h-1.5 bg-gradient-to-r from-navy via-burgundy to-gold group-hover:h-2 transition-all duration-300" />
+
+                    {/* Hover glow */}
+                    <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-gold/20 via-transparent to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-[1px] -z-10" />
 
                     <div className="p-6 flex flex-col flex-1">
                       <Badge variant="secondary" className="self-start mb-3">
                         {locale === 'ar' ? 'نظام' : 'Curriculum'}
                       </Badge>
 
-                      <h3 className="text-lg font-bold text-navy font-playfair mb-2 group-hover:text-gold transition-colors">
+                      <h3 className="text-lg font-bold text-navy font-playfair mb-2 group-hover:text-gold transition-colors duration-300">
                         {name}
                       </h3>
 
@@ -51,9 +54,9 @@ export default function ProgramsSection({ locale, systems }: ProgramsSectionProp
                         </p>
                       )}
 
-                      <div className="mt-4 pt-4 border-t border-navy/10">
-                        <span className="text-gold text-sm font-medium group-hover:underline">
-                          {t('learn_more')} →
+                      <div className="mt-4 pt-4 border-t border-navy/10 group-hover:border-gold/20 transition-colors duration-300">
+                        <span className="text-gold text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all duration-300">
+                          {t('learn_more')} <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
                         </span>
                       </div>
                     </div>

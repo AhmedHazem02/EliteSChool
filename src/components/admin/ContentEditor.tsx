@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
+import SettingsMediaField from './SettingsMediaField';
+import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
 import { Save, CheckCircle } from 'lucide-react';
 
 interface ContentData {
@@ -16,6 +18,7 @@ interface ContentData {
   subtitle_ar: string | null;
   content_en: unknown;
   content_ar: unknown;
+  image_url: string | null;
   extra_data: unknown;
 }
 
@@ -39,6 +42,7 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
   const [subtitleAr, setSubtitleAr] = useState(initialData?.subtitle_ar ?? '');
   const [contentEn, setContentEn] = useState(stringify(initialData?.content_en));
   const [contentAr, setContentAr] = useState(stringify(initialData?.content_ar));
+  const [imageUrl, setImageUrl] = useState(initialData?.image_url ?? '');
   const [extraData, setExtraData] = useState(stringify(initialData?.extra_data));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -59,6 +63,7 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
       subtitle_ar: subtitleAr || null,
       content_en: contentEn || null,
       content_ar: contentAr || null,
+      image_url: imageUrl || null,
       extra_data: parsedExtra,
     };
 
@@ -114,6 +119,19 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
         multiline
         rows={8}
       />
+
+      {/* Section Image */}
+      <div className="max-w-sm">
+        <SettingsMediaField
+          label={t('form.sectionImage')}
+          value={imageUrl}
+          onChange={setImageUrl}
+          bucket={STORAGE_BUCKETS.GALLERY_IMAGES}
+          mediaType="image"
+          maxSize={FILE_SIZE_LIMITS.IMAGE}
+          hint="Image shown in this section (e.g. About page photo)"
+        />
+      </div>
 
       {/* Extra Data (JSON) */}
       <div className="space-y-1.5">

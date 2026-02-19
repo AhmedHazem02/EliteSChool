@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
 import { NAV_LINKS } from '@/lib/constants';
 import type { Locale } from '@/types';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from '../shared/ThemeToggle';
 
 interface MobileMenuProps {
   locale: Locale;
@@ -95,11 +96,14 @@ export default function MobileMenu({ locale, open, onClose }: MobileMenuProps) {
 
             {/* Bottom Actions */}
             <div className="p-4 border-t border-gold/20 space-y-3">
-              <LanguageSwitcher locale={locale} className="w-full justify-center" />
+              <div className="flex items-center justify-center gap-3">
+                <ThemeToggle />
+                <LanguageSwitcher locale={locale} className="flex-1 justify-center" />
+              </div>
               <Link
                 href={`/${locale}/admissions`}
                 onClick={onClose}
-                className="relative overflow-hidden flex items-center justify-center w-full bg-burgundy text-white py-3 rounded-lg text-base font-semibold transition-all duration-300 hover:bg-burgundy-light min-h-[44px] group"
+                className="relative overflow-hidden flex items-center justify-center w-full bg-burgundy text-white py-3 rounded-lg text-base font-semibold transition-all duration-300 hover:bg-burgundy-light min-h-[44px] group btn-press"
               >
                 <span className="relative z-10">{t('nav.applyNow')}</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />

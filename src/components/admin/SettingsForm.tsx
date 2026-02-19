@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
+import SettingsMediaField from '@/components/admin/SettingsMediaField';
+import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
 import { Save, CheckCircle } from 'lucide-react';
 
 type SiteSettings = {
@@ -20,6 +22,7 @@ type SiteSettings = {
   address_ar: string | null;
   map_url: string | null;
   hero_video_url: string | null;
+  hero_image_url: string | null;
   facebook_url: string | null;
   instagram_url: string | null;
   twitter_url: string | null;
@@ -30,7 +33,8 @@ type SiteSettings = {
   seo_description_ar: string | null;
 };
 
-const FIELDS: { key: keyof Omit<SiteSettings, 'id'>; labelKey: string; dir?: 'rtl' }[] = [
+/** Text-only fields (rendered as simple inputs) */
+const TEXT_FIELDS: { key: keyof Omit<SiteSettings, 'id'>; labelKey: string; dir?: 'rtl' }[] = [
   { key: 'site_name_en', labelKey: 'settings.siteNameEn' },
   { key: 'site_name_ar', labelKey: 'settings.siteNameAr', dir: 'rtl' },
   { key: 'contact_email', labelKey: 'settings.contactEmail' },
@@ -39,8 +43,6 @@ const FIELDS: { key: keyof Omit<SiteSettings, 'id'>; labelKey: string; dir?: 'rt
   { key: 'address_en', labelKey: 'settings.addressEn' },
   { key: 'address_ar', labelKey: 'settings.addressAr', dir: 'rtl' },
   { key: 'map_url', labelKey: 'settings.mapUrl' },
-  { key: 'hero_video_url', labelKey: 'settings.heroVideoUrl' },
-  { key: 'logo_url', labelKey: 'settings.logoUrl' },
   { key: 'facebook_url', labelKey: 'settings.facebookUrl' },
   { key: 'instagram_url', labelKey: 'settings.instagramUrl' },
   { key: 'twitter_url', labelKey: 'settings.twitterUrl' },
@@ -49,6 +51,41 @@ const FIELDS: { key: keyof Omit<SiteSettings, 'id'>; labelKey: string; dir?: 'rt
   { key: 'seo_title_ar', labelKey: 'settings.seoTitleAr', dir: 'rtl' },
   { key: 'seo_description_en', labelKey: 'settings.seoDescEn' },
   { key: 'seo_description_ar', labelKey: 'settings.seoDescAr', dir: 'rtl' },
+];
+
+/** Media fields (rendered with drag-and-drop upload) */
+const MEDIA_FIELDS: {
+  key: keyof Omit<SiteSettings, 'id'>;
+  labelKey: string;
+  bucket: string;
+  mediaType: 'image' | 'video' | 'any';
+  maxSize: number;
+  hint?: string;
+}[] = [
+  {
+    key: 'logo_url',
+    labelKey: 'settings.logoUrl',
+    bucket: STORAGE_BUCKETS.SYSTEM_IMAGES,
+    mediaType: 'image',
+    maxSize: FILE_SIZE_LIMITS.IMAGE,
+    hint: 'Recommended: PNG with transparent background, 200×80px',
+  },
+  {
+    key: 'hero_image_url',
+    labelKey: 'settings.heroImageUrl',
+    bucket: STORAGE_BUCKETS.GALLERY_IMAGES,
+    mediaType: 'image',
+    maxSize: FILE_SIZE_LIMITS.IMAGE,
+    hint: 'Fallback background for the Hero section (min 1920×1080)',
+  },
+  {
+    key: 'hero_video_url',
+    labelKey: 'settings.heroVideoUrl',
+    bucket: STORAGE_BUCKETS.HERO_VIDEOS,
+    mediaType: 'video',
+    maxSize: FILE_SIZE_LIMITS.VIDEO,
+    hint: 'MP4/WebM — shown as Hero background (overrides image if set)',
+  },
 ];
 
 interface SettingsFormProps {
@@ -95,8 +132,32 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
   }
 
   return (
-    <div className="max-w-3xl space-y-4">
-      {FIELDS.map(({ key, labelKey, dir }) => (
+    <div className="max-w-3xl space-y-8">
+      {/* ── Media Upload Fields ──────────────────────────────── */}
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold text-navy">{t('settings.mediaSection')}</h3>
+        <p className="text-xs text-navy/50">{t('settings.mediaSectionHint')}</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MEDIA_FIELDS.map(({ key, labelKey, bucket, mediaType, maxSize, hint }) => (
+          <SettingsMediaField
+            key={key}
+            label={t(labelKey)}
+            value={(form[key] as string) ?? ''}
+            onChange={(url) => update(key, url)}
+            bucket={bucket}
+            mediaType={mediaType}
+            maxSize={maxSize}
+            hint={hint}
+          />
+        ))}
+      </div>
+
+      {/* ── Text Fields ──────────────────────────────────────── */}
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold text-navy">{t('settings.generalSection')}</h3>
+      </div>
+      {TEXT_FIELDS.map(({ key, labelKey, dir }) => (
         <div key={key} className="bg-white border border-navy/10 rounded-xl p-4">
           <Label className="text-xs text-navy/60 mb-2 block">{t(labelKey)}</Label>
           <Input

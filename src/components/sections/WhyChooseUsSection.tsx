@@ -3,6 +3,7 @@ import SectionHeader from '@/components/shared/SectionHeader';
 import TiltCard from '@/components/shared/TiltCard';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import { GraduationCap, Globe, Users, Award, BookOpen, Heart } from 'lucide-react';
+import GeometricDecoration from '@/components/shared/GeometricDecoration';
 
 const features = [
   {
@@ -45,7 +46,10 @@ export default function WhyChooseUsSection({ locale }: WhyChooseUsSectionProps) 
   const t = useTranslations('whyUs');
 
   return (
-    <section className="section-padding bg-gray-100" aria-label="Why Choose Us">
+    <section className="section-padding bg-gray-100 relative overflow-hidden" aria-label="Why Choose Us">
+      {/* Geometric decorations */}
+      <GeometricDecoration type="islamic-star" className="absolute top-10 right-10 opacity-15 hidden lg:block" size={100} />
+      <GeometricDecoration type="geometric-grid" className="absolute bottom-10 left-10 opacity-10 hidden lg:block" size={90} />
       <div className="container mx-auto px-4">
         <SectionHeader
           title={t('title')}
@@ -58,12 +62,17 @@ export default function WhyChooseUsSection({ locale }: WhyChooseUsSectionProps) 
             return (
               <ScrollReveal key={i} direction="up" delay={i * 0.08}>
                 <TiltCard className="h-full">
-                  <div className="bg-white rounded-2xl p-6 h-full shadow-card hover:shadow-card-hover transition-all duration-300 border border-navy/5">
-                    <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mb-5">
-                      <f.icon className="text-gold" size={26} />
+                  <div className="group bg-white rounded-2xl p-6 h-full shadow-card hover:shadow-luxury transition-all duration-500 border border-navy/5 hover:border-gold/20 card-shine card-lift relative overflow-hidden">
+                    {/* Subtle gradient on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    <div className="relative z-10">
+                      <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center mb-5 group-hover:bg-gold/20 group-hover:shadow-gold transition-all duration-500 icon-hover-bounce">
+                        <f.icon className="text-gold group-hover:scale-110 transition-transform duration-300" size={26} />
+                      </div>
+                      <h3 className="text-base font-semibold text-navy mb-2 group-hover:text-gold transition-colors duration-300">{content.title}</h3>
+                      <p className="text-navy/60 text-sm leading-relaxed">{content.desc}</p>
                     </div>
-                    <h3 className="text-base font-semibold text-navy mb-2">{content.title}</h3>
-                    <p className="text-navy/60 text-sm leading-relaxed">{content.desc}</p>
                   </div>
                 </TiltCard>
               </ScrollReveal>

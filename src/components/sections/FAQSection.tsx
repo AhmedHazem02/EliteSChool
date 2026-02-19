@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import GeometricDecoration from '@/components/shared/GeometricDecoration';
 import { generateFAQSchema } from '@/lib/seo';
 
 interface FAQItem {
@@ -52,7 +53,10 @@ export default function FAQSection({ locale, faqs = DEFAULT_FAQS }: FAQSectionPr
   const schema = generateFAQSchema(faqs);
 
   return (
-    <section className="section-padding bg-white" aria-label="FAQ">
+    <section className="section-padding bg-white relative overflow-hidden" aria-label="FAQ">
+      {/* Decorative corner ornaments */}
+      <GeometricDecoration type="corner-ornament" className="absolute top-6 left-6 opacity-30 hidden lg:block" size={80} />
+      <GeometricDecoration type="corner-ornament" className="absolute bottom-6 right-6 opacity-30 hidden lg:block rotate-180" size={80} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}

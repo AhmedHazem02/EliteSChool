@@ -28,7 +28,7 @@ export default async function ContentSectionPage({ params }: Props) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('page_content')
-    .select('id, section_key, title_en, title_ar, subtitle_en, subtitle_ar, content_en, content_ar, extra_data')
+    .select('id, section_key, title_en, title_ar, subtitle_en, subtitle_ar, content_en, content_ar, image_url, extra_data')
     .eq('section_key', section)
     .single();
 

@@ -34,7 +34,7 @@ export default function NewsSection({ locale, posts }: NewsSectionProps) {
             return (
               <ScrollReveal key={post.id} direction="up" delay={i * 0.1}>
                 <Link href={`/${locale}/news/${post.id}`} className="group block h-full">
-                  <article className="bg-white rounded-2xl overflow-hidden border border-navy/10 shadow-card hover:shadow-gold transition-all duration-300 h-full flex flex-col">
+                    <article className="bg-white rounded-2xl overflow-hidden border border-navy/10 shadow-card hover:shadow-luxury transition-all duration-500 h-full flex flex-col card-shine card-lift group-hover:border-gold/20">
                     {post.thumbnail_url && (
                       <div className="relative aspect-video overflow-hidden">
                         <Image
@@ -50,7 +50,7 @@ export default function NewsSection({ locale, posts }: NewsSectionProps) {
                       {post.type && (
                         <Badge variant="secondary" className="self-start mb-3">{post.type}</Badge>
                       )}
-                      <h3 className="text-base font-bold text-navy font-playfair mb-2 group-hover:text-gold transition-colors">
+                      <h3 className="text-base font-bold text-navy font-playfair mb-2 group-hover:text-gold transition-colors duration-300">
                         {title}
                       </h3>
                       {excerpt && (

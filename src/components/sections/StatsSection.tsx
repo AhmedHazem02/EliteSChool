@@ -1,6 +1,8 @@
-import { useTranslations } from 'next-intl';
+'use client';
+
 import AnimatedCounter from '@/components/shared/AnimatedCounter';
 import ScrollReveal from '@/components/shared/ScrollReveal';
+import FloatingParticles from '@/components/shared/FloatingParticles';
 
 interface StatItem {
   value: number;
@@ -23,21 +25,36 @@ const DEFAULT_STATS: StatItem[] = [
 
 export default function StatsSection({ locale, stats = DEFAULT_STATS }: StatsSectionProps) {
   return (
-    <section className="section-padding bg-navy text-white" aria-label="Statistics">
-      <div className="container mx-auto px-4">
+    <section className="section-padding bg-navy text-white relative overflow-hidden" aria-label="Statistics">
+      {/* Subtle particles */}
+      <FloatingParticles count={15} maxSize={1.5} minSize={0.5} speed={0.15} />
+
+      {/* Decorative pattern */}
+      <div className="absolute inset-0 pattern-dots pointer-events-none" />
+
+      {/* Decorative gradient orb */}
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-gold/5 rounded-full blur-[80px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-burgundy/5 rounded-full blur-[80px] pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-4">
           {stats.map((stat, i) => (
-            <ScrollReveal key={i} direction="up" delay={i * 0.1}>
-              <div className="text-center">
-                <AnimatedCounter
-                  end={stat.value}
-                  suffix={stat.suffix}
-                  className="text-4xl md:text-5xl font-bold text-gold font-playfair"
-                />
-                <p className="text-white/70 text-sm mt-2">
+            <ScrollReveal key={i} direction="up" delay={i * 0.15}>
+              <div className="text-center group">
+                {/* Glow behind number */}
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gold/5 blur-2xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  <AnimatedCounter
+                    end={stat.value}
+                    suffix={stat.suffix}
+                    className="text-4xl md:text-5xl lg:text-6xl font-bold text-gold font-playfair relative z-10 transition-all duration-300 group-hover:text-gold-light"
+                  />
+                </div>
+                <p className="text-white/60 text-sm mt-3 tracking-wide">
                   {locale === 'ar' ? stat.label_ar : stat.label_en}
                 </p>
-                <div className="w-10 h-0.5 bg-gold/40 mx-auto mt-3" />
+                {/* Animated gold underline */}
+                <div className="w-10 h-0.5 bg-gradient-to-r from-gold/20 via-gold/60 to-gold/20 mx-auto mt-4 group-hover:w-16 transition-all duration-500" />
               </div>
             </ScrollReveal>
           ))}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useRef, useEffect, useState } from 'react';
 import SectionHeader from '@/components/shared/SectionHeader';
 import { Star, Quote } from 'lucide-react';
 
@@ -59,6 +59,7 @@ interface TestimonoialsSectionProps {
   locale: string;
 }
 
+/* ── Single Card ── */
 function TestimonialCard({
   testimonial,
   locale,
@@ -69,32 +70,85 @@ function TestimonialCard({
   const name = locale === 'ar' ? testimonial.name_ar : testimonial.name_en;
   const role = locale === 'ar' ? testimonial.role_ar : testimonial.role_en;
   const text = locale === 'ar' ? testimonial.text_ar : testimonial.text_en;
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
     <div className="w-[340px] md:w-[380px] flex-shrink-0 px-3">
-      <div className="bg-white rounded-2xl p-6 shadow-card border border-navy/5 h-full flex flex-col transition-transform duration-300 hover:scale-105 hover:shadow-card-hover cursor-default">
-        <Quote className="text-gold/40 mb-3" size={28} />
-        <p className="text-navy/70 text-sm leading-relaxed flex-1">{text}</p>
-        <div className="mt-4 pt-4 border-t border-navy/10">
-          <div className="flex items-center gap-1 mb-1">
-            {[...Array(5)].map((_, si) => (
-              <Star key={si} size={12} className="text-gold fill-gold" />
-            ))}
+      <div dir={dir} className="relative group bg-white dark:bg-[#162236] rounded-2xl p-6 shadow-card border border-navy/5 h-full flex flex-col transition-all duration-500 hover:scale-[1.02] hover:shadow-luxury cursor-default card-shine">
+        {/* Gold accent line at top */}
+        <div className="absolute top-0 left-6 right-6 h-[2px] bg-gradient-to-r from-transparent via-gold/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Subtle gold gradient accent on hover */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-gold/5 via-transparent to-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, si) => (
+                <Star key={si} size={13} className="text-gold fill-gold drop-shadow-[0_0_3px_rgba(201,168,76,0.4)]" />
+              ))}
+            </div>
+            <Quote className="text-gold/20 group-hover:text-gold/40 transition-colors duration-500" size={32} />
           </div>
-          <p className="font-semibold text-navy text-sm">{name}</p>
-          <p className="text-navy/50 text-xs">{role}</p>
+
+          <p className="text-navy/70 dark:text-gray-300 text-[15px] leading-relaxed flex-1 mb-4">&ldquo;{text}&rdquo;</p>
+
+          <div className="mt-auto pt-4 border-t border-navy/8 dark:border-gold/10 flex items-center gap-3">
+            {/* Avatar circle with initials */}
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center flex-shrink-0 border border-gold/20">
+              <span className="text-gold font-bold text-sm">
+                {name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <p className="font-semibold text-navy dark:text-gray-100 text-sm group-hover:text-gold transition-colors duration-300 truncate">{name}</p>
+              <p className="text-navy/50 dark:text-gray-400 text-xs truncate">{role}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
+/* ── Infinite auto-scrolling marquee ── */
 export default function TestimonialsSection({ locale }: TestimonoialsSectionProps) {
-  // Duplicate the list for seamless infinite loop
-  const doubled = [...testimonials, ...testimonials];
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+  const [paused, setPaused] = useState(false);
+
+  // JS-driven translateX for smooth infinite scroll
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    let raf: number;
+    const speed = 0.5; // px per frame
+
+    const step = () => {
+      if (!paused) {
+        offsetRef.current += speed;
+
+        // Each "set" width = total / 3 (we render 3 copies)
+        const singleSetWidth = track.scrollWidth / 3;
+        if (offsetRef.current >= singleSetWidth) {
+          offsetRef.current -= singleSetWidth;
+        }
+
+        track.style.transform = `translateX(-${offsetRef.current}px)`;
+      }
+      raf = requestAnimationFrame(step);
+    };
+
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [paused]);
+
+  // Triple the list for seamless looping
+  const tripled = [...testimonials, ...testimonials, ...testimonials];
 
   return (
-    <section className="section-padding bg-off-white overflow-hidden" aria-label="Testimonials">
+    <section className="section-padding bg-off-white dark:bg-[#0F1B2D] overflow-hidden" aria-label="Testimonials">
       <div className="container mx-auto px-4">
         <SectionHeader
           title={locale === 'ar' ? 'ماذا يقول مجتمعنا' : 'What Our Community Says'}
@@ -102,17 +156,23 @@ export default function TestimonialsSection({ locale }: TestimonoialsSectionProp
         />
       </div>
 
-      {/* Infinite marquee strip */}
-      <div className="relative mt-12 group">
+      <div
+        className="relative mt-12 overflow-hidden"
+        dir="ltr"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
         {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-off-white to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-off-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-r from-off-white dark:from-[#0F1B2D] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-off-white dark:from-[#0F1B2D] to-transparent z-10 pointer-events-none" />
 
+        {/* Scrolling track — translateX driven */}
         <div
-          className="flex animate-marquee group-hover:[animation-play-state:paused]"
+          ref={trackRef}
+          className="flex py-4 will-change-transform"
           style={{ width: 'max-content' }}
         >
-          {doubled.map((t, i) => (
+          {tripled.map((t, i) => (
             <TestimonialCard key={i} testimonial={t} locale={locale} />
           ))}
         </div>

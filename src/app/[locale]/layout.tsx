@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Playfair_Display, Plus_Jakarta_Sans, Tajawal } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -9,31 +8,9 @@ import Footer from '@/components/layout/Footer';
 import MobileBottomCTA from '@/components/layout/MobileBottomCTA';
 import ScrollProgressBar from '@/components/shared/ScrollProgressBar';
 import BackToTop from '@/components/shared/BackToTop';
-import '@/styles/globals.css';
-
-// ─── Fonts ───────────────────────────────────────────────────────────────────
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-playfair',
-  preload: true,
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-jakarta',
-  weight: ['400', '500', '600', '700'],
-  preload: true,
-});
-
-const tajawal = Tajawal({
-  subsets: ['arabic'],
-  display: 'swap',
-  variable: '--font-tajawal',
-  weight: ['400', '500', '700'],
-  preload: true,
-});
+import Preloader from '@/components/shared/Preloader';
+import SmoothScroll from '@/components/shared/SmoothScroll';
+import ThemeProvider from '@/components/shared/ThemeProvider';
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 export async function generateMetadata({
@@ -85,14 +62,11 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html
-      lang={locale}
-      dir={dir}
-      className={`${playfair.variable} ${jakarta.variable} ${tajawal.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="bg-off-white text-navy antialiased">
+    <div lang={locale} dir={dir}>
         <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+          <SmoothScroll>
+          <Preloader />
           <ScrollProgressBar />
           <Navbar locale={locale as Locale} />
           <main className="min-h-screen">
@@ -101,8 +75,9 @@ export default async function LocaleLayout({
           <Footer locale={locale as Locale} />
           <MobileBottomCTA />
           <BackToTop />
+          </SmoothScroll>
+          </ThemeProvider>
         </NextIntlClientProvider>
-      </body>
-    </html>
+    </div>
   );
 }

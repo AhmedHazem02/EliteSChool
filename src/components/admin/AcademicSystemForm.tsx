@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
 import FeesManager from './FeesManager';
+import SettingsMediaField from './SettingsMediaField';
+import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
 import { Save, Trash2 } from 'lucide-react';
 
 interface FeeRow {
@@ -27,6 +29,7 @@ interface SystemData {
   title_ar?: string;
   description_en?: string;
   description_ar?: string;
+  hero_image_url?: string | null;
   features_en?: unknown;
   features_ar?: unknown;
   is_active?: boolean;
@@ -47,6 +50,7 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
   const [nameAr, setNameAr] = useState(initialData?.title_ar ?? '');
   const [descEn, setDescEn] = useState(initialData?.description_en ?? '');
   const [descAr, setDescAr] = useState(initialData?.description_ar ?? '');
+  const [heroImageUrl, setHeroImageUrl] = useState(initialData?.hero_image_url ?? '');
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(String(initialData?.sort_order ?? 0));
   const [fees, setFees] = useState<FeeRow[]>(initialFees);
@@ -60,6 +64,7 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
     const payload: Record<string, unknown> = {
       title_en: nameEn, title_ar: nameAr,
       description_en: descEn, description_ar: descAr,
+      hero_image_url: heroImageUrl || null,
       is_active: isActive, sort_order: parseInt(sortOrder, 10),
     };
 
@@ -119,6 +124,18 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
         onChangeEn={setDescEn} onChangeAr={setDescAr}
         multiline rows={4}
       />
+
+      <div className="max-w-sm">
+        <SettingsMediaField
+          label={t('form.heroImage')}
+          value={heroImageUrl}
+          onChange={setHeroImageUrl}
+          bucket={STORAGE_BUCKETS.SYSTEM_IMAGES}
+          mediaType="image"
+          maxSize={FILE_SIZE_LIMITS.IMAGE}
+          hint="Hero image for this academic system's page"
+        />
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">

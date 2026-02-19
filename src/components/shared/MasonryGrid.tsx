@@ -31,30 +31,36 @@ export default function MasonryGrid({
       {items.map((item, i) => (
         <motion.div
           key={item.id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: (i % 6) * 0.05 }}
+          transition={{ duration: 0.5, delay: (i % 6) * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
           onClick={() => onItemClick?.(item, i)}
           className="break-inside-avoid mb-4 cursor-pointer overflow-hidden rounded-xl group"
         >
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden rounded-xl">
             <Image
               src={item.media_url}
               alt={locale === 'ar' ? (item.caption_ar ?? '') : (item.caption_en ?? '')}
               width={600}
               height={400}
-              className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-auto object-cover transition-all duration-700 group-hover:scale-110"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
-            {/* Overlay on hover */}
-            <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="text-white text-center px-4">
+            {/* Cinematic overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-6">
+              <div className="text-white text-center px-4 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                <div className="w-8 h-px bg-gold mx-auto mb-2" />
                 <p className="text-sm font-medium">
                   {locale === 'ar' ? item.caption_ar : item.caption_en}
                 </p>
               </div>
             </div>
+            {/* Gold corner accents on hover */}
+            <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-gold/0 group-hover:border-gold/60 transition-all duration-500" />
+            <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-gold/0 group-hover:border-gold/60 transition-all duration-500" />
+            <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-gold/0 group-hover:border-gold/60 transition-all duration-500" />
+            <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-gold/0 group-hover:border-gold/60 transition-all duration-500" />
           </div>
         </motion.div>
       ))}

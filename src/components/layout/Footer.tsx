@@ -16,8 +16,13 @@ export default function Footer({ locale }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-navy-dark text-white pt-12 pb-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-20">
+    <footer className="bg-navy-dark text-white pt-16 pb-6 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+      <div className="absolute top-0 right-20 w-60 h-60 bg-gold/3 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-20 w-40 h-40 bg-burgundy/3 rounded-full blur-[80px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-20 relative z-10">
         {/* Top grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
@@ -46,7 +51,7 @@ export default function Footer({ locale }: FooterProps) {
                   key={label}
                   href="#"
                   aria-label={label}
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gold/30 text-white/60 hover:text-gold hover:border-gold transition-all duration-200 hover:scale-110"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gold/20 text-white/50 hover:text-gold hover:border-gold hover:shadow-gold transition-all duration-300 hover:scale-110 hover:bg-gold/5"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -117,7 +122,12 @@ export default function Footer({ locale }: FooterProps) {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gold/10 pt-6">
+        <div className="border-t border-gold/10 pt-6 mt-4">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-8 h-px bg-gradient-to-r from-transparent to-gold/40" />
+            <div className="w-1.5 h-1.5 rotate-45 border border-gold/30 mx-2" />
+            <div className="w-8 h-px bg-gradient-to-l from-transparent to-gold/40" />
+          </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-white/40 text-xs">
             <p>
               © {currentYear} Elite Schools. {t('footer.rights')}
