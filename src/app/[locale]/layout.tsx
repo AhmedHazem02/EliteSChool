@@ -89,6 +89,7 @@ export default async function LocaleLayout({
       lang={locale}
       dir={dir}
       className={`${playfair.variable} ${jakarta.variable} ${tajawal.variable}`}
+      suppressHydrationWarning
     >
       <body className="bg-off-white text-navy antialiased">
         <NextIntlClientProvider messages={messages}>

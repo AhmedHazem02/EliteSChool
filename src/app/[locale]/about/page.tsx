@@ -34,21 +34,21 @@ export default async function AboutPage({ params }: Props) {
   return (
     <PageTransition>
       <main>
-        {/* Hero */}
-        <div className="relative bg-navy text-white py-24 md:py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('/about-hero.jpg')] bg-cover bg-center opacity-20" />
-          <div className="container mx-auto px-4 relative z-10 text-center">
+        {/* Unified header — extends behind the fixed Navbar */}
+        <section className="relative bg-navy text-white pt-28 pb-8 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-navy via-navy/95 to-navy/80 pointer-events-none" />
+          <div className="container mx-auto px-4 relative z-10">
             <Breadcrumbs
               items={[
                 { label: isAR ? 'من نحن' : 'About', href: `/${locale}/about` },
               ]}
               light
             />
-            <h1 className="text-4xl md:text-5xl font-bold font-playfair mt-6">
+            <h1 className="text-3xl md:text-4xl font-bold font-playfair mt-3">
               {isAR ? 'من نحن' : 'About Elite Schools'}
             </h1>
           </div>
-        </div>
+        </section>
 
         {/* Mission */}
         <section className="section-padding bg-white">

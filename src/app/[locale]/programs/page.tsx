@@ -39,19 +39,21 @@ export default async function ProgramsPage({ params }: Props) {
   return (
     <PageTransition>
       <main>
-        <div className="bg-navy text-white py-24 text-center">
-          <div className="container mx-auto px-4">
+        {/* Unified header — extends behind the fixed Navbar */}
+        <section className="relative bg-navy text-white pt-28 pb-8 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-navy via-navy/95 to-navy/80 pointer-events-none" />
+          <div className="container mx-auto px-4 relative z-10">
             <Breadcrumbs
               items={[
                 { label: isAR ? 'البرامج' : 'Programs', href: `/${locale}/programs` },
               ]}
               light
             />
-            <h1 className="text-4xl md:text-5xl font-bold font-playfair mt-6">
+            <h1 className="text-3xl md:text-4xl font-bold font-playfair mt-3">
               {isAR ? 'برامجنا الأكاديمية' : 'Our Academic Programs'}
             </h1>
           </div>
-        </div>
+        </section>
 
         <section className="section-padding bg-off-white">
           <div className="container mx-auto px-4">
