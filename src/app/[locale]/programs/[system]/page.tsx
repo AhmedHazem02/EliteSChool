@@ -74,7 +74,6 @@ export default async function SystemPage({ params }: Props) {
           <div className="container mx-auto px-4 text-center">
             <Breadcrumbs
               items={[
-                { label: isAR ? 'الرئيسية' : 'Home', href: `/${locale}` },
                 { label: isAR ? 'البرامج' : 'Programs', href: `/${locale}/programs` },
                 { label: name ?? '', href: `/${locale}/programs/${systemId}` },
               ]}

@@ -5,7 +5,7 @@ import StatsSection from '@/components/sections/StatsSection';
 import AboutSection from '@/components/sections/AboutSection';
 import ProgramsSection from '@/components/sections/ProgramsSection';
 import WhyChooseUsSection from '@/components/sections/WhyChooseUsSection';
-import FAQSection from '@/components/sections/FAQSection';
+import FAQSection from '@/components/sections/FAQSectionClient';
 import GallerySection from '@/components/sections/GallerySection';
 import NewsSection from '@/components/sections/NewsSection';
 import TestimonialsSection from '@/components/sections/TestimonialsSection';

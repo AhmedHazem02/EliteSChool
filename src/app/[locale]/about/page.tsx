@@ -40,7 +40,6 @@ export default async function AboutPage({ params }: Props) {
           <div className="container mx-auto px-4 relative z-10 text-center">
             <Breadcrumbs
               items={[
-                { label: isAR ? 'الرئيسية' : 'Home', href: `/${locale}` },
                 { label: isAR ? 'من نحن' : 'About', href: `/${locale}/about` },
               ]}
               light
@@ -62,7 +61,7 @@ export default async function AboutPage({ params }: Props) {
             <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
               <ScrollReveal direction="left">
                 <div className="bg-navy text-white rounded-2xl p-8">
-                  <h3 className="text-xl font-bold font-playfair mb-3 text-gold">
+                  <h3 className="text-xl font-bold font-playfair mb-3" style={{ color: '#C9A84C' }}>
                     {isAR ? 'رسالتنا' : 'Mission'}
                   </h3>
                   <p className="text-white/80 leading-relaxed">

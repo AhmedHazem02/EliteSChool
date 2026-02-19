@@ -61,7 +61,6 @@ export default function ContactClientPage({ locale }: Props) {
           <div className="container mx-auto px-4">
             <Breadcrumbs
               items={[
-                { label: isAR ? 'الرئيسية' : 'Home', href: `/${locale}` },
                 { label: isAR ? 'تواصل معنا' : 'Contact', href: `/${locale}/contact` },
               ]}
               light

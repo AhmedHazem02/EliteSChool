@@ -52,7 +52,6 @@ export default async function NewsArticlePage({ params }: Props) {
           <div className="container mx-auto px-4 max-w-3xl">
             <Breadcrumbs
               items={[
-                { label: isAR ? 'الرئيسية' : 'Home', href: `/${locale}` },
                 { label: isAR ? 'الأخبار' : 'News', href: `/${locale}/news` },
                 { label: title ?? '', href: `/${locale}/news/${id}` },
               ]}

@@ -43,7 +43,6 @@ export default async function ProgramsPage({ params }: Props) {
           <div className="container mx-auto px-4">
             <Breadcrumbs
               items={[
-                { label: isAR ? 'الرئيسية' : 'Home', href: `/${locale}` },
                 { label: isAR ? 'البرامج' : 'Programs', href: `/${locale}/programs` },
               ]}
               light

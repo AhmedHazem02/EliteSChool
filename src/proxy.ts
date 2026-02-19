@@ -36,7 +36,7 @@ export async function proxy(request: NextRequest) {
   // For locale routes, run intl middleware but also preserve session cookies
   const intlResponse = intlMiddleware(request);
   // Copy session cookies onto the intl response
-  sessionResponse.cookies.getAll().forEach((cookie) => {
+  sessionResponse.cookies.getAll().forEach((cookie: { name: string; value: string }) => {
     intlResponse.cookies.set(cookie.name, cookie.value);
   });
   return intlResponse;

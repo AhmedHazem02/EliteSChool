@@ -32,22 +32,44 @@ export default function Navbar({ locale }: NavbarProps) {
           'fixed top-0 w-full z-50 transition-all duration-300',
           scrolled
             ? 'bg-navy/90 backdrop-blur-md border-b border-gold/20 shadow-navy py-2'
-            : 'bg-transparent py-4'
+            : 'bg-transparent py-3'
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-24">
             {/* Logo */}
-            <Link href={`/${locale}`} className="flex items-center gap-2 flex-shrink-0">
-              <Image
-                src="/images/logo.png"
-                alt="Elite Schools"
-                width={120}
-                height={48}
-                style={{ width: 'auto', height: '40px' }}
-                className="md:h-12 object-contain"
-                priority
-              />
+            <Link href={`/${locale}`} className="flex items-center gap-3 flex-shrink-0 group">
+              {/* Left golden ornament */}
+              <div className="hidden sm:flex flex-col items-center gap-[3px]">
+                <span className="block w-px h-6 bg-gradient-to-b from-transparent via-gold to-gold/50" />
+                <span className="block w-1 h-1 rounded-full bg-gold shadow-[0_0_6px_2px_rgba(201,168,76,0.7)]" />
+                <span className="block w-px h-3 bg-gradient-to-b from-gold/50 to-transparent" />
+              </div>
+
+              {/* Logo with majestic glow */}
+              <div className="relative flex items-center justify-center">
+                {/* Ambient halo */}
+                <div
+                  className="absolute inset-0 rounded-2xl blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-700"
+                  style={{ background: 'radial-gradient(ellipse, rgba(201,168,76,0.6) 0%, transparent 70%)' }}
+                />
+                <Image
+                  src="/images/logo.png"
+                  alt="Elite Schools"
+                  width={240}
+                  height={96}
+                  style={{ width: 'auto', height: '68px' }}
+                  className="logo-majestic relative z-10 md:h-[76px] object-contain"
+                  priority
+                />
+              </div>
+
+              {/* Right golden ornament */}
+              <div className="hidden sm:flex flex-col items-center gap-[3px]">
+                <span className="block w-px h-6 bg-gradient-to-b from-transparent via-gold to-gold/50" />
+                <span className="block w-1 h-1 rounded-full bg-gold shadow-[0_0_6px_2px_rgba(201,168,76,0.7)]" />
+                <span className="block w-px h-3 bg-gradient-to-b from-gold/50 to-transparent" />
+              </div>
             </Link>
 
             {/* Desktop Nav Links */}

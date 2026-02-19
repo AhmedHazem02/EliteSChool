@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Delete middleware.ts",
+			"type": "shell",
+			"command": "del \"f:\\Elite\\elite-schools\\src\\middleware.ts\""
+		},
+		{
+			"label": "Delete middleware.ts",
+			"type": "shell",
+			"command": "del \"src\\middleware.ts\""
+		}
+	]
+}

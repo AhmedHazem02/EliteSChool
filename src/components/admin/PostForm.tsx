@@ -39,7 +39,7 @@ export default function PostForm({ initialData }: PostFormProps) {
   const [contentAr, setContentAr] = useState(initialData?.content_ar ?? '');
   const [category, setCategory] = useState(initialData?.type ?? 'news');
   const [imageUrl, setImageUrl] = useState(initialData?.thumbnail_url ?? '');
-  const [published, setPublished] = useState(initialData?.is_published ?? false);
+  const [published, setPublished] = useState(initialData?.is_published ?? true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

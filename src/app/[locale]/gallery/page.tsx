@@ -39,7 +39,6 @@ export default async function GalleryPage({ params }: Props) {
           <div className="container mx-auto px-4">
             <Breadcrumbs
               items={[
-                { label: locale === 'ar' ? 'الرئيسية' : 'Home', href: `/${locale}` },
                 { label: locale === 'ar' ? 'معرض الصور' : 'Gallery', href: `/${locale}/gallery` },
               ]}
               light
