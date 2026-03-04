@@ -1,7 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import { notFound } from 'next/navigation';
 import AcademicSystemForm from '@/components/admin/AcademicSystemForm';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,10 +16,10 @@ export default async function AcademicSystemEditPage({ params }: Props) {
   const t = adminT(locale);
 
   if (!isNew) {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data: system } = await supabase
       .from('academic_systems')
-      .select('id, title_en, title_ar, description_en, description_ar, features_en, features_ar, is_active, sort_order')
+      .select('id, title_en, title_ar, description_en, description_ar, features_en, features_ar, hero_image_url, is_active, sort_order')
       .eq('id', id)
       .single();
 

@@ -14,9 +14,12 @@ interface HeroSectionProps {
   locale: string;
   videoUrl?: string | null;
   heroImageUrl?: string | null;
+  dbTitle?: string | null;
+  dbSubtitle?: string | null;
+  dbDescription?: string | null;
 }
 
-export default function HeroSection({ locale, videoUrl, heroImageUrl }: HeroSectionProps) {
+export default function HeroSection({ locale, videoUrl, heroImageUrl, dbTitle, dbSubtitle, dbDescription }: HeroSectionProps) {
   const t = useTranslations('hero');
   const isRTL = locale === 'ar';
   const sectionRef = useRef<HTMLElement>(null);
@@ -31,9 +34,13 @@ export default function HeroSection({ locale, videoUrl, heroImageUrl }: HeroSect
   const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.5], [0, -80]);
 
+  // Use DB value if available, otherwise fall back to i18n
+  const titleText = dbTitle || t('title');
+  const subtitleText = dbSubtitle || t('subtitle');
+  const descriptionText = dbDescription || null;
+
   // Split title for gold gradient on last word
-  const title = t('title');
-  const words = title.trim().split(' ');
+  const words = titleText.trim().split(' ');
   const lastWord = words.pop();
   const restOfTitle = words.join(' ');
 
@@ -182,10 +189,23 @@ export default function HeroSection({ locale, videoUrl, heroImageUrl }: HeroSect
             initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ delay: 1.3, duration: 0.7 }}
-            className="text-lg md:text-xl text-white/75 max-w-2xl mx-auto mb-12 leading-relaxed"
+            className="text-lg md:text-xl text-white/75 max-w-2xl mx-auto mb-4 leading-relaxed"
           >
-            {t('subtitle')}
+            {subtitleText}
           </motion.p>
+
+          {/* Description — from DB content_en/ar */}
+          {descriptionText && (
+            <motion.p
+              initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ delay: 1.5, duration: 0.7 }}
+              className="text-base md:text-lg text-white/60 max-w-2xl mx-auto mb-12 leading-relaxed"
+            >
+              {descriptionText}
+            </motion.p>
+          )}
+          {!descriptionText && <div className="mb-12" />}
 
           {/* CTAs with magnetic effect */}
           <motion.div

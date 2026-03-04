@@ -1,9 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import SettingsForm from '@/components/admin/SettingsForm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminSettingsPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const locale = await getAdminLocale();
   const t = adminT(locale);
   const { data: settings } = await supabase

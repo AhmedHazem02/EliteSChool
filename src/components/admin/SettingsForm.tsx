@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import SettingsMediaField from '@/components/admin/SettingsMediaField';
 import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
+import { saveSiteSettings } from '@/app/actions/admin';
 import { Save, CheckCircle } from 'lucide-react';
 
 type SiteSettings = {
@@ -93,7 +93,6 @@ interface SettingsFormProps {
 }
 
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
-  const supabase = createClient();
   const { t } = useAdminI18n();
   const [form, setForm] = useState<Omit<SiteSettings, 'id'>>(
     initialSettings
@@ -113,13 +112,9 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
     setSaving(true);
     setError(null);
 
-    const { error: dbErr } = await supabase
-      .from('site_settings')
-      .update(form)
-      .eq('id', initialSettings.id);
-
-    if (dbErr) {
-      setError(dbErr.message);
+    const result = await saveSiteSettings(initialSettings.id, form);
+    if (result.error) {
+      setError(result.error);
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

@@ -45,7 +45,7 @@ export default async function SystemPage({ params }: Props) {
   const supabase = await createClient();
 
   const [sysRes, feesRes] = await Promise.all([
-    supabase.from('academic_systems').select('id, title_en, title_ar, description_en, description_ar, features_en, features_ar').eq('id', systemId).single(),
+    supabase.from('academic_systems').select('id, title_en, title_ar, description_en, description_ar, features_en, features_ar, hero_image_url').eq('id', systemId).single(),
     supabase.from('tuition_fees').select('id, grade_level_en, grade_level_ar, fee_amount, currency, notes_en, notes_ar').eq('system_id', systemId).order('sort_order'),
   ]);
 
@@ -57,6 +57,7 @@ export default async function SystemPage({ params }: Props) {
   const desc = isAR ? sys.description_ar : sys.description_en;
   const featuresRaw = isAR ? sys.features_ar : sys.features_en;
   const features: string[] = Array.isArray(featuresRaw) ? (featuresRaw as string[]) : [];
+  const heroImageUrl = sys.hero_image_url ?? null;
 
   const feeColumns: TableColumn<FeeRow>[] = [
     { key: isAR ? 'grade_level_ar' : 'grade_level_en', label: isAR ? 'المرحلة الدراسية' : 'Grade Level' },
@@ -71,9 +72,21 @@ export default async function SystemPage({ params }: Props) {
     <PageTransition>
       <main>
         {/* Unified header — extends behind the fixed Navbar */}
-        <section className="relative bg-navy text-white pt-28 pb-8 text-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-navy via-navy/95 to-navy/80 pointer-events-none" />
-          <div className="container mx-auto px-4 relative z-10">
+        <section className="relative bg-navy text-white pt-28 pb-16 text-center overflow-hidden min-h-[280px] flex items-end justify-center">
+          {/* Hero image background */}
+          {heroImageUrl && (
+            <Image
+              src={heroImageUrl}
+              alt={name ?? ''}
+              fill
+              priority
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+          )}
+          {/* Overlay — darker when image is present */}
+          <div className={`absolute inset-0 ${heroImageUrl ? 'bg-navy/70' : 'bg-gradient-to-b from-navy via-navy/95 to-navy/80'} pointer-events-none`} />
+          <div className="container mx-auto px-4 relative z-10 pb-4">
             <Breadcrumbs
               items={[
                 { label: isAR ? 'البرامج' : 'Programs', href: `/${locale}/programs` },

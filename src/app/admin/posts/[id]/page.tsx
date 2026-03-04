@@ -1,7 +1,9 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import { notFound } from 'next/navigation';
 import PostForm from '@/components/admin/PostForm';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,7 +16,7 @@ export default async function AdminPostEditPage({ params }: Props) {
   const t = adminT(locale);
 
   if (!isNew) {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data: post } = await supabase
       .from('posts')
       .select('id, title_en, title_ar, content_en, content_ar, type, thumbnail_url, is_published, slug')

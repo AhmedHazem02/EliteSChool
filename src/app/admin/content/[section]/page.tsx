@@ -1,7 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import { notFound } from 'next/navigation';
 import ContentEditor from '@/components/admin/ContentEditor';
+
+// Always fetch fresh data — admin must see latest values
+export const dynamic = 'force-dynamic';
 
 const VALID_SECTIONS = ['hero', 'about', 'why_choose_us', 'stats', 'faq'];
 
@@ -25,7 +28,7 @@ export default async function ContentSectionPage({ params }: Props) {
   const locale = await getAdminLocale();
   const t = adminT(locale);
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from('page_content')
     .select('id, section_key, title_en, title_ar, subtitle_en, subtitle_ar, content_en, content_ar, image_url, extra_data')

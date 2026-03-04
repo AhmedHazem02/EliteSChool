@@ -2,10 +2,15 @@ import { useTranslations } from 'next-intl';
 import SectionHeader from '@/components/shared/SectionHeader';
 import TiltCard from '@/components/shared/TiltCard';
 import ScrollReveal from '@/components/shared/ScrollReveal';
-import { GraduationCap, Globe, Users, Award, BookOpen, Heart } from 'lucide-react';
+import { GraduationCap, Globe, Users, Award, BookOpen, Heart, Shield, Layers, type LucideIcon } from 'lucide-react';
 import GeometricDecoration from '@/components/shared/GeometricDecoration';
 
-const features = [
+// Map icon string → Lucide component
+const ICON_MAP: Record<string, LucideIcon> = {
+  GraduationCap, Globe, Users, Award, BookOpen, Heart, Shield, Layers,
+};
+
+const DEFAULT_FEATURES = [
   {
     icon: GraduationCap,
     en: { title: 'Expert Faculty', desc: 'Certified & experienced teachers from Egypt and abroad' },
@@ -38,12 +43,24 @@ const features = [
   },
 ];
 
+type DbFeature = { icon: string; title_en: string; title_ar: string; desc_en: string; desc_ar: string };
+
 interface WhyChooseUsSectionProps {
   locale: string;
+  dbFeatures?: DbFeature[];
 }
 
-export default function WhyChooseUsSection({ locale }: WhyChooseUsSectionProps) {
+export default function WhyChooseUsSection({ locale, dbFeatures }: WhyChooseUsSectionProps) {
   const t = useTranslations('whyUs');
+
+  // Convert DB features to component format, fallback to defaults
+  const features = dbFeatures && dbFeatures.length > 0
+    ? dbFeatures.map((f) => ({
+        icon: ICON_MAP[f.icon] ?? Award,
+        en: { title: f.title_en, desc: f.desc_en },
+        ar: { title: f.title_ar, desc: f.desc_ar },
+      }))
+    : DEFAULT_FEATURES;
 
   return (
     <section className="section-padding bg-gray-100 relative overflow-hidden" aria-label="Why Choose Us">

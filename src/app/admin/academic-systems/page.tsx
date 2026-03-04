@@ -1,12 +1,14 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminAcademicSystemsPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const locale = await getAdminLocale();
   const t = adminT(locale);
   const { data: systems } = await supabase

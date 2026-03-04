@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
 import SettingsMediaField from './SettingsMediaField';
 import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
 import { Save, CheckCircle } from 'lucide-react';
+import { savePageContent } from '@/app/actions/content';
 
 interface ContentData {
   id: string;
@@ -33,7 +33,6 @@ function stringify(val: unknown): string {
 }
 
 export default function ContentEditor({ section, initialData }: ContentEditorProps) {
-  const supabase = createClient();
   const { t } = useAdminI18n();
 
   const [titleEn, setTitleEn] = useState(initialData?.title_en ?? '');
@@ -55,7 +54,8 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
     let parsedExtra: unknown = extraData;
     try { parsedExtra = JSON.parse(extraData); } catch { /* keep as string */ }
 
-    const payload = {
+    const result = await savePageContent({
+      id: initialData?.id,
       section_key: section,
       title_en: titleEn || null,
       title_ar: titleAr || null,
@@ -65,22 +65,13 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
       content_ar: contentAr || null,
       image_url: imageUrl || null,
       extra_data: parsedExtra,
-    };
+    });
 
-    const { error: dbError } = initialData?.id
-      ? await supabase.from('page_content').update(payload).eq('id', initialData.id)
-      : await supabase.from('page_content').insert(payload);
-
-    if (dbError) {
-      setError(dbError.message);
+    if (!result.success) {
+      setError(result.error ?? 'Save failed');
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      await fetch('/api/revalidate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secret: process.env.NEXT_PUBLIC_REVALIDATION_SECRET, tag: section }),
-      }).catch(() => null);
     }
 
     setSaving(false);
@@ -140,6 +131,7 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
           value={extraData}
           onChange={(e) => setExtraData(e.target.value)}
           rows={10}
+          aria-label={t('form.extraData')}
           className="w-full rounded-xl border border-navy/10 p-3 font-mono text-sm resize-y focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all"
           dir="ltr"
         />

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo';
 import Link from 'next/link';
+import Image from 'next/image';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
@@ -30,7 +31,7 @@ export default async function ProgramsPage({ params }: Props) {
 
   const { data: systems } = await supabase
     .from('academic_systems')
-    .select('id, title_en, title_ar, description_en, description_ar, is_active')
+    .select('id, title_en, title_ar, description_en, description_ar, hero_image_url, is_active')
     .eq('is_active', true)
     .order('sort_order');
 
@@ -65,7 +66,25 @@ export default async function ProgramsPage({ params }: Props) {
                 return (
                   <ScrollReveal key={sys.id} direction="up" delay={i * 0.1}>
                     <Link href={`/${locale}/programs/${sys.id}`} className="group block h-full">
-                      <div className="bg-white rounded-2xl p-6 shadow-card hover:shadow-gold transition-all duration-300 h-full flex flex-col border border-navy/5">
+                      <div className="bg-white rounded-2xl shadow-card hover:shadow-gold transition-all duration-300 h-full flex flex-col border border-navy/5 overflow-hidden">
+                        {/* Hero image thumbnail */}
+                        <div className="relative h-44 bg-navy/10 overflow-hidden">
+                          {sys.hero_image_url ? (
+                            <Image
+                              src={sys.hero_image_url}
+                              alt={name ?? ''}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/70 flex items-center justify-center">
+                              <span className="text-white/20 text-5xl font-playfair font-bold">{(name ?? '').charAt(0)}</span>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-navy/40 to-transparent" />
+                        </div>
+                        <div className="p-6 flex flex-col flex-1">
                         <div className="h-1.5 w-12 bg-gradient-to-r from-navy to-gold rounded-full mb-4" />
                         <Badge variant="secondary" className="self-start mb-3">
                           {isAR ? 'منهج' : 'Curriculum'}
@@ -81,6 +100,7 @@ export default async function ProgramsPage({ params }: Props) {
                         <div className="flex items-center gap-1.5 text-gold text-sm font-medium mt-4">
                           {isAR ? 'اقرأ المزيد' : 'Learn More'}
                           <Arrow size={14} className="group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                        </div>
                         </div>
                       </div>
                     </Link>

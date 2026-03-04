@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
+import { saveAcademicSystem, deleteAcademicSystem } from '@/app/actions/admin';
 import FeesManager from './FeesManager';
 import SettingsMediaField from './SettingsMediaField';
 import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
@@ -43,14 +43,21 @@ interface Props {
 
 export default function AcademicSystemForm({ initialData, fees: initialFees }: Props) {
   const router = useRouter();
-  const supabase = createClient();
   const { t } = useAdminI18n();
+
+  // Convert stored JSONB string array to newline-separated text
+  function arrayToText(val: unknown): string {
+    if (Array.isArray(val)) return (val as string[]).join('\n');
+    return '';
+  }
 
   const [nameEn, setNameEn] = useState(initialData?.title_en ?? '');
   const [nameAr, setNameAr] = useState(initialData?.title_ar ?? '');
   const [descEn, setDescEn] = useState(initialData?.description_en ?? '');
   const [descAr, setDescAr] = useState(initialData?.description_ar ?? '');
   const [heroImageUrl, setHeroImageUrl] = useState(initialData?.hero_image_url ?? '');
+  const [featuresEn, setFeaturesEn] = useState(arrayToText(initialData?.features_en));
+  const [featuresAr, setFeaturesAr] = useState(arrayToText(initialData?.features_ar));
   const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(String(initialData?.sort_order ?? 0));
   const [fees, setFees] = useState<FeeRow[]>(initialFees);
@@ -61,42 +68,34 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
     setSaving(true);
     setError(null);
 
-    const payload: Record<string, unknown> = {
+    // Convert textarea lines to string arrays, removing empty lines
+    const toArray = (text: string) =>
+      text.split('\n').map((l) => l.trim()).filter(Boolean);
+
+    const payload = {
       title_en: nameEn, title_ar: nameAr,
       description_en: descEn, description_ar: descAr,
       hero_image_url: heroImageUrl || null,
+      features_en: toArray(featuresEn),
+      features_ar: toArray(featuresAr),
       is_active: isActive, sort_order: parseInt(sortOrder, 10),
+      slug: initialData?.id ? undefined : (
+        nameEn.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '') || `system-${Date.now()}`
+      ),
     };
 
-    let systemId = initialData?.id;
+    const feePayloads = fees.map((f, i) => ({
+      grade_level_en: f.grade_level_en,
+      grade_level_ar: f.grade_level_ar,
+      fee_amount: f.fee_amount,
+      currency: f.currency || 'EGP',
+      notes_en: f.notes_en ?? null,
+      notes_ar: f.notes_ar ?? null,
+      sort_order: i,
+    }));
 
-    if (systemId) {
-      const { error: dbErr } = await supabase.from('academic_systems').update(payload).eq('id', systemId);
-      if (dbErr) { setError(dbErr.message); setSaving(false); return; }
-    } else {
-      // slug is required (NOT NULL UNIQUE)
-      const slug = nameEn.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '') || `system-${Date.now()}`;
-      payload.slug = slug;
-      const { data, error: dbErr } = await supabase.from('academic_systems').insert(payload).select('id').single();
-      if (dbErr || !data) { setError(dbErr?.message ?? 'Insert failed'); setSaving(false); return; }
-      systemId = data.id;
-    }
-
-    // Sync fees: delete all existing, re-insert
-    await supabase.from('tuition_fees').delete().eq('system_id', systemId);
-    if (fees.length > 0) {
-      const feePayloads = fees.map((f, i) => ({
-        system_id: systemId,
-        grade_level_en: f.grade_level_en,
-        grade_level_ar: f.grade_level_ar,
-        fee_amount: f.fee_amount,
-        currency: f.currency || 'EGP',
-        notes_en: f.notes_en ?? null,
-        notes_ar: f.notes_ar ?? null,
-        sort_order: i,
-      }));
-      await supabase.from('tuition_fees').insert(feePayloads);
-    }
+    const result = await saveAcademicSystem(initialData?.id, payload, feePayloads);
+    if (!result.success) { setError(result.error ?? 'Save failed'); setSaving(false); return; }
 
     router.push('/admin/academic-systems');
     router.refresh();
@@ -105,7 +104,7 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
   async function handleDelete() {
     if (!initialData?.id) return;
     if (!confirm(t('form.deleteSystemConfirm'))) return;
-    await supabase.from('academic_systems').delete().eq('id', initialData.id);
+    await deleteAcademicSystem(initialData.id);
     router.push('/admin/academic-systems');
     router.refresh();
   }
@@ -137,13 +136,43 @@ export default function AcademicSystemForm({ initialData, fees: initialFees }: P
         />
       </div>
 
+      {/* Features */}
+      <div className="space-y-4">
+        <p className="text-sm font-semibold text-navy">{t('form.features')}</p>
+        <p className="text-xs text-navy/50 -mt-2">{t('form.featuresHint')}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label>{t('form.featuresEn')}</Label>
+            <textarea
+              value={featuresEn}
+              onChange={(e) => setFeaturesEn(e.target.value)}
+              rows={6}
+              dir="ltr"
+              placeholder="SAT/ACT Preparation&#10;US Common Core Standards&#10;STEM Focus"
+              className="w-full rounded-xl border border-navy/10 p-3 text-sm resize-y focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all font-sans"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>{t('form.featuresAr')}</Label>
+            <textarea
+              value={featuresAr}
+              onChange={(e) => setFeaturesAr(e.target.value)}
+              rows={6}
+              dir="rtl"
+              placeholder="تحضير SAT/ACT&#10;معايير Common Core الأمريكية&#10;تركيز على STEM"
+              className="w-full rounded-xl border border-navy/10 p-3 text-sm resize-y focus:ring-2 focus:ring-gold/50 focus:border-gold transition-all font-sans"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label>{t('form.sortOrder')}</Label>
           <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} min={0} />
         </div>
         <div className="flex items-center gap-2 mt-6">
-          <input type="checkbox" id="active" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-4 h-4 accent-gold" />
+          <input type="checkbox" id="active" title={t('form.activeVisible')} checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-4 h-4 accent-gold" />
           <Label htmlFor="active">{t('form.activeVisible')}</Label>
         </div>
       </div>

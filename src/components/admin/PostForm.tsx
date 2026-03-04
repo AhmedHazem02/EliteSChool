@@ -32,7 +32,6 @@ interface PostFormProps {
 
 export default function PostForm({ initialData }: PostFormProps) {
   const router = useRouter();
-  const supabase = createClient();
   const { t } = useAdminI18n();
 
   const [titleEn, setTitleEn] = useState(initialData?.title_en ?? '');
@@ -60,15 +59,8 @@ export default function PostForm({ initialData }: PostFormProps) {
       slug: initialData?.slug ?? slugify(titleEn),
     };
 
-    const { error: dbError } = initialData?.id
-      ? await supabase.from('posts').update(payload).eq('id', initialData.id)
-      : await supabase.from('posts').insert(payload);
-
-    if (dbError) {
-      setError(dbError.message);
-      setSaving(false);
-      return;
-    }
+    const result = await savePost(initialData?.id, payload);
+    if (result.error) { setError(result.error); setSaving(false); return; }
 
     router.push('/admin/posts');
     router.refresh();
@@ -77,7 +69,7 @@ export default function PostForm({ initialData }: PostFormProps) {
   async function handleDelete() {
     if (!initialData?.id) return;
     if (!confirm(t('form.deletePostConfirm'))) return;
-    await supabase.from('posts').delete().eq('id', initialData.id);
+    await deletePost(initialData.id);
     router.push('/admin/posts');
     router.refresh();
   }
@@ -122,6 +114,7 @@ export default function PostForm({ initialData }: PostFormProps) {
           checked={published}
           onChange={(e) => setPublished(e.target.checked)}
           className="w-4 h-4 accent-gold"
+          title={t('form.publishedVisible')}
         />
         <Label htmlFor="published">{t('form.publishedVisible')}</Label>
       </div>

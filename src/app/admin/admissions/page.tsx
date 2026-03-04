@@ -1,9 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getAdminLocale, adminT } from '@/lib/admin-i18n';
 import SubmissionsList from '@/components/admin/SubmissionsList';
 
+export const dynamic = 'force-dynamic';
+
 async function getSubmissions() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from('admissions')
     .select('id, parent_name, student_name, grade_level, selected_system, phone, email, created_at')

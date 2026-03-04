@@ -28,27 +28,68 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-export const revalidate = 3600; // ISR – re-generate every hour
+export const dynamic = 'force-dynamic'; // Always fetch fresh content from DB
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const supabase = await createClient();
 
-  const [systemsRes, galleryRes, postsRes, settingsRes, aboutContentRes, heroContentRes] = await Promise.all([
+  const [systemsRes, galleryRes, postsRes, settingsRes, pageContentRes] = await Promise.all([
     supabase.from('academic_systems').select('id, title_en, title_ar, description_en, description_ar, is_active, slug, hero_image_url, curriculum_en, curriculum_ar, features_en, features_ar, sort_order, created_at, updated_at').eq('is_active', true).order('sort_order'),
     supabase.from('gallery').select('id, media_url, caption_en, caption_ar, category, sort_order, media_type, is_active, created_at').order('sort_order').limit(12),
     supabase.from('posts').select('id, title_en, title_ar, content_en, content_ar, thumbnail_url, type, created_at, is_published, is_featured, slug, excerpt_en, excerpt_ar, event_date, updated_at').eq('is_published', true).order('created_at', { ascending: false }).limit(3),
     supabase.from('site_settings').select('hero_video_url, hero_image_url').single(),
-    supabase.from('page_content').select('image_url').eq('section_key', 'about').single(),
-    supabase.from('page_content').select('image_url').eq('section_key', 'hero').single(),
+    supabase.from('page_content')
+      .select('section_key, title_en, title_ar, subtitle_en, subtitle_ar, content_en, content_ar, image_url, extra_data')
+      .in('section_key', ['hero', 'about', 'stats', 'why_choose_us', 'faq']),
   ]);
 
   const systems = systemsRes.data ?? [];
   const gallery = galleryRes.data ?? [];
   const posts = postsRes.data ?? [];
   const settings = settingsRes.data;
-  const aboutImageUrl = aboutContentRes.data?.image_url ?? null;
-  const heroContentImage = heroContentRes.data?.image_url ?? null;
+
+  // Map page_content rows by section_key
+  type PageContentRow = NonNullable<typeof pageContentRes.data>[number];
+  const pc = Object.fromEntries(
+    (pageContentRes.data ?? []).map((r: PageContentRow) => [r.section_key, r])
+  );
+
+  const aboutImageUrl = pc.about?.image_url ?? null;
+  const heroContentImage = pc.hero?.image_url ?? null;
+
+  // Stats: extra_data is [{value, suffix, label_en, label_ar}]
+  type DbStat = { value: number; suffix: string; label_en: string; label_ar: string };
+  const dbStats = Array.isArray(pc.stats?.extra_data)
+    ? (pc.stats.extra_data as DbStat[])
+    : null;
+
+  // WhyChooseUs: extra_data is [{icon, title_en, title_ar, desc_en, desc_ar}]
+  type DbFeature = { icon: string; title_en: string; title_ar: string; desc_en: string; desc_ar: string };
+  const dbWhyFeatures = Array.isArray(pc.why_choose_us?.extra_data)
+    ? (pc.why_choose_us.extra_data as DbFeature[])
+    : null;
+
+  // FAQ: extra_data is [{q_en, q_ar, a_en, a_ar}]
+  type DbFaq = { q_en: string; q_ar: string; a_en: string; a_ar: string };
+  const dbFaqs = Array.isArray(pc.faq?.extra_data)
+    ? (pc.faq.extra_data as DbFaq[]).map((f) => ({
+        question_en: f.q_en,
+        question_ar: f.q_ar,
+        answer_en: f.a_en,
+        answer_ar: f.a_ar,
+      }))
+    : null;
+
+  // About highlights from extra_data
+  type DbHighlight = { en: string; ar: string };
+  const dbHighlights = (() => {
+    const ex = pc.about?.extra_data;
+    if (ex && typeof ex === 'object' && Array.isArray((ex as Record<string, unknown>).highlights)) {
+      return (ex as { highlights: DbHighlight[] }).highlights;
+    }
+    return null;
+  })();
 
   const schema = generateSchoolSchema();
 
@@ -63,15 +104,29 @@ export default async function HomePage({ params }: Props) {
         locale={locale}
         videoUrl={settings?.hero_video_url}
         heroImageUrl={settings?.hero_image_url || heroContentImage}
+        dbTitle={locale === 'ar' ? pc.hero?.title_ar : pc.hero?.title_en}
+        dbSubtitle={locale === 'ar' ? pc.hero?.subtitle_ar : pc.hero?.subtitle_en}
+        dbDescription={locale === 'ar'
+          ? (pc.hero?.content_ar as string | null | undefined)
+          : (pc.hero?.content_en as string | null | undefined)}
       />
       {/* Hero=navy → Stats=navy: no divider needed */}
 
-      <StatsSection locale={locale} />
+      <StatsSection locale={locale} stats={dbStats ?? undefined} />
       <SectionDivider variant="navy-to-white" />
 
-      <AboutSection locale={locale} imageUrl={aboutImageUrl} />
+      <AboutSection
+        locale={locale}
+        imageUrl={aboutImageUrl}
+        dbTitle={locale === 'ar' ? pc.about?.title_ar : pc.about?.title_en}
+        dbSubtitle={locale === 'ar' ? pc.about?.subtitle_ar : pc.about?.subtitle_en}
+        dbDescription={locale === 'ar'
+          ? (pc.about?.content_ar as string | null | undefined)
+          : (pc.about?.content_en as string | null | undefined)}
+        dbHighlights={dbHighlights ?? undefined}
+      />
 
-      <WhyChooseUsSection locale={locale} />
+      <WhyChooseUsSection locale={locale} dbFeatures={dbWhyFeatures ?? undefined} />
 
       <ProgramsSection locale={locale} systems={systems} />
       <SectionDivider variant="offwhite-to-white" />
@@ -96,7 +151,7 @@ export default async function HomePage({ params }: Props) {
       <TestimonialsSection locale={locale} />
       <SectionDivider variant="offwhite-to-white" />
 
-      <FAQSection locale={locale} />
+      <FAQSection locale={locale} faqs={dbFaqs ?? undefined} />
       <SectionDivider variant="white-to-burgundy" />
 
       <CTASection locale={locale} />

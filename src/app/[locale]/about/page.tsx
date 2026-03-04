@@ -1,4 +1,6 @@
+import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo';
+import Image from 'next/image';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal from '@/components/shared/ScrollReveal';
 import CTASection from '@/components/sections/CTASection';
@@ -23,6 +25,32 @@ export async function generateMetadata({ params }: Props) {
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   const isAR = locale === 'ar';
+  const supabase = await createClient();
+
+  const { data: aboutData } = await supabase
+    .from('page_content')
+    .select('title_en, title_ar, subtitle_en, subtitle_ar, content_en, content_ar, image_url, extra_data')
+    .eq('section_key', 'about')
+    .single();
+
+  type ExtraData = {
+    mission_en?: string; mission_ar?: string;
+    vision_en?: string; vision_ar?: string;
+  };
+  const extra = (aboutData?.extra_data ?? {}) as ExtraData;
+
+  const pageTitle = isAR ? (aboutData?.title_ar ?? 'عن مدارس إيليت') : (aboutData?.title_en ?? 'About Elite Schools');
+  const pageSubtitle = isAR ? (aboutData?.subtitle_ar ?? null) : (aboutData?.subtitle_en ?? null);
+  const pageDesc = isAR ? (aboutData?.content_ar as string | null) : (aboutData?.content_en as string | null);
+  const pageImage = aboutData?.image_url ?? null;
+
+  const missionText = isAR
+    ? (extra.mission_ar ?? 'توفير بيئة تعليمية متميزة تُلهم الطلاب لتحقيق أعلى إمكاناتهم، وإعدادهم لمواجهة تحديات عالم متغير.')
+    : (extra.mission_en ?? 'To provide an outstanding learning environment that inspires students to reach their highest potential, preparing them to thrive in a changing world.');
+
+  const visionText = isAR
+    ? (extra.vision_ar ?? 'أن نكون المدرسة الرائدة في مصر التي تُخريج طلاباً متكاملين ومؤثرين على المستوى المحلي والعالمي.')
+    : (extra.vision_en ?? "To be Egypt's leading school producing well-rounded, impactful graduates who make a difference locally and globally.");
 
   const values = [
     { icon: Award, en: 'Excellence in all we do', ar: 'التميز في كل ما نفعله' },
@@ -35,18 +63,15 @@ export default async function AboutPage({ params }: Props) {
     <PageTransition>
       <main>
         {/* Unified header — extends behind the fixed Navbar */}
-        <section className="relative bg-navy text-white pt-28 pb-8 text-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-navy via-navy/95 to-navy/80 pointer-events-none" />
-          <div className="container mx-auto px-4 relative z-10">
-            <Breadcrumbs
-              items={[
-                { label: isAR ? 'من نحن' : 'About', href: `/${locale}/about` },
-              ]}
-              light
-            />
-            <h1 className="text-3xl md:text-4xl font-bold font-playfair mt-3">
-              {isAR ? 'من نحن' : 'About Elite Schools'}
-            </h1>
+        <section className="relative bg-navy text-white pt-28 pb-16 text-center overflow-hidden min-h-[260px] flex items-end justify-center">
+          {pageImage && (
+            <Image src={pageImage} alt={pageTitle} fill priority className="object-cover object-center" sizes="100vw" />
+          )}
+          <div className={`absolute inset-0 ${pageImage ? 'bg-navy/70' : 'bg-gradient-to-b from-navy via-navy/95 to-navy/80'} pointer-events-none`} />
+          <div className="container mx-auto px-4 relative z-10 pb-4">
+            <Breadcrumbs items={[{ label: isAR ? 'من نحن' : 'About', href: `/${locale}/about` }]} light />
+            <h1 className="text-3xl md:text-4xl font-bold font-playfair mt-3">{pageTitle}</h1>
+            {pageSubtitle && <p className="text-white/70 mt-2 text-lg">{pageSubtitle}</p>}
           </div>
         </section>
 

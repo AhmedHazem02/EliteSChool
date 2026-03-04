@@ -22,11 +22,22 @@ const highlights = [
 interface AboutSectionProps {
   locale: string;
   imageUrl?: string | null;
+  dbTitle?: string | null;
+  dbSubtitle?: string | null;
+  dbDescription?: string | null;
+  dbHighlights?: { en: string; ar: string }[] | null;
 }
 
-export default function AboutSection({ locale, imageUrl }: AboutSectionProps) {
+export default function AboutSection({ locale, imageUrl, dbTitle, dbSubtitle, dbDescription, dbHighlights }: AboutSectionProps) {
   const t = useTranslations('about');
   const isRTL = locale === 'ar';
+
+  const titleText = dbTitle || t('title');
+  const subtitleText = dbSubtitle || t('subtitle');
+  const descriptionText = dbDescription || t('description');
+
+  // Use DB highlights if present, otherwise fall back to hardcoded defaults
+  const activeHighlights = (dbHighlights && dbHighlights.length > 0) ? dbHighlights : highlights;
 
   return (
     <section className="section-padding bg-white relative overflow-hidden" aria-label="About">
@@ -44,13 +55,19 @@ export default function AboutSection({ locale, imageUrl }: AboutSectionProps) {
             <div className="relative">
               <ImageReveal direction={isRTL ? 'right' : 'left'} delay={0.2}>
                 <div className="relative z-10 rounded-3xl overflow-hidden shadow-luxury aspect-[4/3]">
-                  <Image
-                    src={imageUrl || '/about-school.jpg'}
-                    alt="Elite Schools Campus"
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt="Elite Schools Campus"
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy/90 to-navy/70 flex items-center justify-center">
+                      <p className="text-gold/40 text-sm font-playfair">Elite Schools</p>
+                    </div>
+                  )}
                   {/* Subtle overlay on hover */}
                   <div className="absolute inset-0 bg-gradient-to-t from-navy/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500" />
                 </div>
@@ -88,15 +105,15 @@ export default function AboutSection({ locale, imageUrl }: AboutSectionProps) {
           <ScrollReveal direction={isRTL ? 'left' : 'right'}>
             <div>
               <SectionHeader
-                title={t('title')}
-                subtitle={t('subtitle')}
+                title={titleText}
+                subtitle={subtitleText}
                 centered={false}
               />
 
-              <p className="text-navy/70 leading-relaxed mb-6">{t('description')}</p>
+              <p className="text-navy/70 leading-relaxed mb-6">{descriptionText}</p>
 
               <ul className="space-y-4 mb-8">
-                {highlights.map((item, i) => (
+                {activeHighlights.map((item, i) => (
                   <motion.li
                     key={i}
                     className="flex items-start gap-3 group"
