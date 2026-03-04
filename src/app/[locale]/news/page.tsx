@@ -23,6 +23,8 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewsPage({ params }: Props) {
   const { locale } = await params;
   const isAR = locale === 'ar';

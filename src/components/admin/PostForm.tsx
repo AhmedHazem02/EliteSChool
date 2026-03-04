@@ -2,17 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useAdminI18n } from '@/components/admin/AdminI18nProvider';
 import BilingualInput from './BilingualInput';
 import SettingsMediaField from './SettingsMediaField';
 import { STORAGE_BUCKETS, FILE_SIZE_LIMITS } from '@/lib/constants';
 import { Save, Trash2 } from 'lucide-react';
 import { slugify } from '@/lib/utils';
+import { savePost, deletePost } from '@/app/actions/admin';
 
 interface PostData {
   id?: string;

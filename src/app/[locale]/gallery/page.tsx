@@ -18,6 +18,8 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function GalleryPage({ params }: Props) {
   const { locale } = await params;
   const supabase = await createClient();

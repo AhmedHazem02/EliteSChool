@@ -9,6 +9,8 @@ import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 interface Props {
   params: Promise<{ locale: string; id: string }>;
 }

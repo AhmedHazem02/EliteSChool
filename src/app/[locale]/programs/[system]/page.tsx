@@ -12,6 +12,8 @@ import { formatCurrency } from '@/lib/utils';
 import { CheckCircle } from 'lucide-react';
 import type { TableColumn } from '@/components/shared/ResponsiveTable';
 
+export const dynamic = 'force-dynamic';
+
 interface FeeRow {
   id: string;
   grade_level_en: string;
