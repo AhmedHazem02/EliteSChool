@@ -8,17 +8,28 @@ import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { cache } from 'react';
+import sanitizeHtml from 'sanitize-html';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 interface Props {
   params: Promise<{ locale: string; id: string }>;
 }
 
+const getPost = cache(async (id: string) => {
+  const supabase = await createClient();
+  return supabase
+    .from('posts')
+    .select('id, title_en, title_ar, content_en, content_ar, thumbnail_url, type, created_at, is_published, slug')
+    .eq('id', id)
+    .eq('is_published', true)
+    .single();
+});
+
 export async function generateMetadata({ params }: Props) {
   const { locale, id } = await params;
-  const supabase = await createClient();
-  const { data } = await supabase.from('posts').select('title_en, title_ar, content_en').eq('id', id).single();
+  const { data } = await getPost(id);
   if (!data) return {};
   const title = locale === 'ar' ? data.title_ar : data.title_en;
   const desc = data.content_en?.replace(/<[^>]*>/g, '').slice(0, 160) ?? '';
@@ -28,20 +39,21 @@ export async function generateMetadata({ params }: Props) {
 export default async function NewsArticlePage({ params }: Props) {
   const { locale, id } = await params;
   const isAR = locale === 'ar';
-  const supabase = await createClient();
 
-  const { data: post } = await supabase
-    .from('posts')
-    .select('id, title_en, title_ar, content_en, content_ar, thumbnail_url, type, created_at, is_published, slug')
-    .eq('id', id)
-    .eq('is_published', true)
-    .single();
-
+  const { data: post } = await getPost(id);
   if (!post) notFound();
 
   const title = isAR ? post.title_ar : post.title_en;
-  const content = isAR ? post.content_ar : post.content_en;
-  const schema = generateArticleSchema({ ...post, title_en: post.title_en ?? '' });
+  const rawContent = isAR ? post.content_ar : post.content_en;
+  const content = rawContent ? sanitizeHtml(rawContent, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'figure', 'figcaption']),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: ['src', 'alt', 'width', 'height', 'loading'],
+      a: ['href', 'target', 'rel'],
+    },
+  }) : null;
+  const schema = generateArticleSchema({ ...post, title_en: post.title_en ?? '', thumbnail_url: post.thumbnail_url });
   const Arrow = isAR ? ArrowRight : ArrowLeft;
 
   return (

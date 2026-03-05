@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { createClient } from '@/lib/supabase/client';
+import { submitAdmission } from '@/app/actions/submissions';
 import { useRateLimit } from '@/hooks/useRateLimit';
 import { CheckCircle, Send } from 'lucide-react';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
@@ -21,7 +21,6 @@ interface Props {
 export default function AdmissionsClientPage({ locale }: Props) {
   const t = useTranslations('admissions');
   const isAR = locale === 'ar';
-  const supabase = createClient();
   const { canSubmit } = useRateLimit();
 
   const [form, setForm] = useState({
@@ -46,18 +45,18 @@ export default function AdmissionsClientPage({ locale }: Props) {
     setLoading(true);
     setError(null);
 
-    const { error: dbError } = await supabase.from('admissions').insert({
+    const result = await submitAdmission({
       parent_name: form.parent_name,
       student_name: form.student_name,
       phone: form.phone,
-      email: form.email || null,
-      grade_level: form.grade_level || null,
-      selected_system: (form.selected_system as 'American' | 'British' | null) || null,
-      notes: form.notes || null,
+      email: form.email || undefined,
+      grade_level: form.grade_level || undefined,
+      selected_system: form.selected_system || undefined,
+      notes: form.notes || undefined,
     });
 
-    if (dbError) {
-      setError(dbError.message);
+    if (!result.success) {
+      setError(result.error ?? 'Submission failed');
     } else {
       setSubmitted(true);
     }

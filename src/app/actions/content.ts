@@ -1,7 +1,15 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new Error('Unauthorized');
+  return user;
+}
 
 interface ContentPayload {
   id?: string;
@@ -17,6 +25,12 @@ interface ContentPayload {
 }
 
 export async function savePageContent(payload: ContentPayload) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = createAdminClient();
 
   let error;

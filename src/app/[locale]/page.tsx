@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-export const dynamic = 'force-dynamic'; // Always fetch fresh content from DB
+export const revalidate = 60; // ISR: revalidate every 60s + on-demand from admin actions
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
@@ -91,6 +91,34 @@ export default async function HomePage({ params }: Props) {
     return null;
   })();
 
+  const dbFoundedYear = (() => {
+    const ex = pc.about?.extra_data;
+    if (ex && typeof ex === 'object') {
+      const v = (ex as Record<string, unknown>).founded_year;
+      return typeof v === 'string' ? v : null;
+    }
+    return null;
+  })();
+
+  const dbEstLabel = (() => {
+    const ex = pc.about?.extra_data;
+    if (ex && typeof ex === 'object') {
+      const v = (ex as Record<string, unknown>).est_label;
+      return typeof v === 'string' ? v : null;
+    }
+    return null;
+  })();
+
+  // show_about_image: default true if not explicitly set to false
+  const showAboutImage = (() => {
+    const ex = pc.about?.extra_data;
+    if (ex && typeof ex === 'object') {
+      const v = (ex as Record<string, unknown>).show_about_image;
+      if (typeof v === 'boolean') return v;
+    }
+    return true;
+  })();
+
   const schema = generateSchoolSchema();
 
   return (
@@ -117,13 +145,15 @@ export default async function HomePage({ params }: Props) {
 
       <AboutSection
         locale={locale}
-        imageUrl={aboutImageUrl}
+        imageUrl={showAboutImage ? aboutImageUrl : null}
         dbTitle={locale === 'ar' ? pc.about?.title_ar : pc.about?.title_en}
         dbSubtitle={locale === 'ar' ? pc.about?.subtitle_ar : pc.about?.subtitle_en}
         dbDescription={locale === 'ar'
           ? (pc.about?.content_ar as string | null | undefined)
           : (pc.about?.content_en as string | null | undefined)}
         dbHighlights={dbHighlights ?? undefined}
+        dbFoundedYear={dbFoundedYear}
+        dbEstLabel={dbEstLabel}
       />
 
       <WhyChooseUsSection locale={locale} dbFeatures={dbWhyFeatures ?? undefined} />

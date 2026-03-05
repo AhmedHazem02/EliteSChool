@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
@@ -92,9 +92,7 @@ export default async function AboutPage({ params }: Props) {
                     {isAR ? 'رسالتنا' : 'Mission'}
                   </h3>
                   <p className="text-white/80 leading-relaxed">
-                    {isAR
-                      ? 'توفير بيئة تعليمية متميزة تُلهم الطلاب لتحقيق أعلى إمكاناتهم، وإعدادهم لمواجهة تحديات عالم متغير.'
-                      : 'To provide an outstanding learning environment that inspires students to reach their highest potential, preparing them to thrive in a changing world.'}
+                    {missionText}
                   </p>
                 </div>
               </ScrollReveal>
@@ -104,9 +102,7 @@ export default async function AboutPage({ params }: Props) {
                     {isAR ? 'رؤيتنا' : 'Vision'}
                   </h3>
                   <p className="text-white/90 leading-relaxed">
-                    {isAR
-                      ? 'أن نكون المدرسة الرائدة في مصر التي تُخرّج طلاباً متكاملين ومؤثرين على المستوى المحلي والعالمي.'
-                      : 'To be Egypt\'s leading school producing well-rounded, impactful graduates who make a difference locally and globally.'}
+                    {visionText}
                   </p>
                 </div>
               </ScrollReveal>

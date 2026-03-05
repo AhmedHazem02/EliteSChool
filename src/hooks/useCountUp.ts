@@ -6,6 +6,7 @@ export function useCountUp(end: number, duration = 2000) {
   const [count, setCount] = useState(0);
   const { ref, inView } = useInViewLocal();
   const hasStarted = useRef(false);
+  const rafId = useRef<number>(0);
 
   useEffect(() => {
     if (!inView || hasStarted.current) return;
@@ -25,11 +26,15 @@ export function useCountUp(end: number, duration = 2000) {
       // Ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(eased * end));
-      if (progress < 1) requestAnimationFrame(step);
-      else setCount(end);
+      if (progress < 1) {
+        rafId.current = requestAnimationFrame(step);
+      } else {
+        setCount(end);
+      }
     };
 
-    requestAnimationFrame(step);
+    rafId.current = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId.current);
   }, [inView, end, duration]);
 
   return { count, ref };

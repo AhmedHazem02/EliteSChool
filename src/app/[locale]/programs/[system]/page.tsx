@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
@@ -12,7 +13,7 @@ import { formatCurrency } from '@/lib/utils';
 import { CheckCircle } from 'lucide-react';
 import type { TableColumn } from '@/components/shared/ResponsiveTable';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 interface FeeRow {
   id: string;
@@ -24,18 +25,34 @@ interface FeeRow {
   notes_ar: string | null;
 }
 
+// Deduplicate system fetch across generateMetadata and page
+const getSystem = cache(async (systemId: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('academic_systems')
+    .select('id, title_en, title_ar, description_en, description_ar, features_en, features_ar, hero_image_url')
+    .eq('id', systemId)
+    .single();
+  return data;
+});
+
+const getFees = cache(async (systemId: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('tuition_fees')
+    .select('id, grade_level_en, grade_level_ar, fee_amount, currency, notes_en, notes_ar')
+    .eq('system_id', systemId)
+    .order('sort_order');
+  return data ?? [];
+});
+
 interface Props {
   params: Promise<{ locale: string; system: string }>;
 }
 
 export async function generateMetadata({ params }: Props) {
   const { locale, system: systemId } = await params;
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('academic_systems')
-    .select('title_en, title_ar')
-    .eq('id', systemId)
-    .single();
+  const data = await getSystem(systemId);
 
   const name = locale === 'ar' ? (data?.title_ar ?? '') : (data?.title_en ?? '');
   return buildMetadata({ title: name, description: name, path: `/${locale}/programs/${systemId}`, locale });
@@ -44,17 +61,13 @@ export async function generateMetadata({ params }: Props) {
 export default async function SystemPage({ params }: Props) {
   const { locale, system: systemId } = await params;
   const isAR = locale === 'ar';
-  const supabase = await createClient();
-
-  const [sysRes, feesRes] = await Promise.all([
-    supabase.from('academic_systems').select('id, title_en, title_ar, description_en, description_ar, features_en, features_ar, hero_image_url').eq('id', systemId).single(),
-    supabase.from('tuition_fees').select('id, grade_level_en, grade_level_ar, fee_amount, currency, notes_en, notes_ar').eq('system_id', systemId).order('sort_order'),
+  const [sys, fees] = await Promise.all([
+    getSystem(systemId),
+    getFees(systemId),
   ]);
 
-  if (!sysRes.data) notFound();
+  if (!sys) notFound();
 
-  const sys = sysRes.data;
-  const fees = (feesRes.data ?? []) as FeeRow[];
   const name = isAR ? sys.title_ar : sys.title_en;
   const desc = isAR ? sys.description_ar : sys.description_en;
   const featuresRaw = isAR ? sys.features_ar : sys.features_en;

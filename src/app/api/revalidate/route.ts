@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { revalidateTag, revalidatePath } from 'next/cache';
+import { timingSafeEqual } from 'crypto';
+
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 export async function POST(request: Request) {
   try {
     const { secret, tag, path } = await request.json();
 
-    if (secret !== process.env.REVALIDATION_SECRET) {
+    const serverSecret = process.env.REVALIDATION_SECRET;
+    if (!serverSecret || !secret || !safeCompare(secret, serverSecret)) {
       return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
     }
 

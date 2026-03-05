@@ -60,13 +60,15 @@ export function generateArticleSchema(post: {
   created_at: string;
   updated_at?: string;
   image_url?: string;
+  thumbnail_url?: string;
   slug?: string;
 }) {
+  const imageUrl = post.image_url || post.thumbnail_url;
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title_en,
-    image: post.image_url ? [post.image_url] : [],
+    image: imageUrl ? [imageUrl] : [],
     datePublished: post.created_at,
     dateModified: post.updated_at ?? post.created_at,
     author: {

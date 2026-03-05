@@ -6,6 +6,10 @@ export function useInView(options?: IntersectionObserverInit) {
   const ref = useRef<HTMLElement | null>(null);
   const [inView, setInView] = useState(false);
 
+  // Memoize primitive option values to avoid re-creating the observer every render
+  const threshold = options?.threshold;
+  const rootMargin = options?.rootMargin;
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -18,12 +22,15 @@ export function useInView(options?: IntersectionObserverInit) {
           observer.unobserve(el);
         }
       },
-      { threshold: 0.1, ...options }
+      {
+        threshold: (threshold as number | number[]) ?? 0.1,
+        rootMargin: rootMargin ?? undefined,
+      }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [options]);
+  }, [threshold, rootMargin]);
 
   return { ref, inView };
 }

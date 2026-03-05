@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import SectionHeader from '@/components/shared/SectionHeader';
@@ -23,9 +23,12 @@ export default function GallerySection({ locale, items }: GallerySectionProps) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const filtered = activeCategory === 'all'
-    ? items
-    : items.filter((item) => item.category === activeCategory);
+  const filtered = useMemo(
+    () => activeCategory === 'all'
+      ? items
+      : items.filter((item) => item.category === activeCategory),
+    [activeCategory, items]
+  );
 
   const handleOpen = useCallback((item: GalleryItem, index: number) => {
     setLightboxIndex(index);

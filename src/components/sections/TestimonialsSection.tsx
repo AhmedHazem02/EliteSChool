@@ -114,8 +114,22 @@ function TestimonialCard({
 /* ── Infinite auto-scrolling marquee ── */
 export default function TestimonialsSection({ locale }: TestimonoialsSectionProps) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const offsetRef = useRef(0);
   const [paused, setPaused] = useState(false);
+  const isVisibleRef = useRef(true);
+
+  // Pause rAF when section is off-screen
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { isVisibleRef.current = entry.isIntersecting; },
+      { threshold: 0 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   // JS-driven translateX for smooth infinite scroll
   useEffect(() => {
@@ -126,7 +140,7 @@ export default function TestimonialsSection({ locale }: TestimonoialsSectionProp
     const speed = 0.5; // px per frame
 
     const step = () => {
-      if (!paused) {
+      if (!paused && isVisibleRef.current) {
         offsetRef.current += speed;
 
         // Each "set" width = total / 3 (we render 3 copies)
@@ -148,7 +162,7 @@ export default function TestimonialsSection({ locale }: TestimonoialsSectionProp
   const tripled = [...testimonials, ...testimonials, ...testimonials];
 
   return (
-    <section className="section-padding bg-off-white dark:bg-[#0F1B2D] overflow-hidden" aria-label="Testimonials">
+    <section ref={sectionRef} className="section-padding bg-off-white dark:bg-[#0F1B2D] overflow-hidden" aria-label="Testimonials">
       <div className="container mx-auto px-4">
         <SectionHeader
           title={locale === 'ar' ? 'ماذا يقول مجتمعنا' : 'What Our Community Says'}

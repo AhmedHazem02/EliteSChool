@@ -1,15 +1,13 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import { motion, useSpring, useTransform } from 'framer-motion';
 
 interface MagneticButtonProps {
   children: React.ReactNode;
   className?: string;
   strength?: number;
-  as?: 'button' | 'div' | 'a';
   onClick?: () => void;
-  href?: string;
 }
 
 /**
@@ -20,12 +18,9 @@ export default function MagneticButton({
   children,
   className = '',
   strength = 0.3,
-  as: Component = 'div',
   onClick,
-  href,
 }: MagneticButtonProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false);
 
   const x = useSpring(0, { stiffness: 200, damping: 20 });
   const y = useSpring(0, { stiffness: 200, damping: 20 });
@@ -46,12 +41,7 @@ export default function MagneticButton({
   const handleMouseLeave = useCallback(() => {
     x.set(0);
     y.set(0);
-    setHovered(false);
   }, [x, y]);
-
-  const handleMouseEnter = useCallback(() => {
-    setHovered(true);
-  }, []);
 
   return (
     <motion.div
@@ -59,7 +49,6 @@ export default function MagneticButton({
       style={{ x, y }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      onMouseEnter={handleMouseEnter}
       onClick={onClick}
       className={`inline-block ${className}`}
     >

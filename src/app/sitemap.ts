@@ -8,8 +8,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
   const [postsRes, systemsRes] = await Promise.all([
-    supabase.from('posts').select('id, updated_at').eq('published', true),
-    supabase.from('academic_systems').select('id, updated_at').eq('is_active', true),
+    supabase.from('posts').select('id, slug, updated_at').eq('is_published', true),
+    supabase.from('academic_systems').select('id, slug, updated_at').eq('is_active', true),
   ]);
 
   const posts = postsRes.data ?? [];
@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // News posts
     for (const post of posts) {
       urls.push({
-        url: `${SITE_URL}/${locale}/news/${post.id}`,
+        url: `${SITE_URL}/${locale}/news/${post.slug || post.id}`,
         lastModified: new Date(post.updated_at),
         changeFrequency: 'monthly',
         priority: 0.6,
@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Academic system pages
     for (const sys of systems) {
       urls.push({
-        url: `${SITE_URL}/${locale}/programs/${sys.id}`,
+        url: `${SITE_URL}/${locale}/programs/${sys.slug || sys.id}`,
         lastModified: new Date(sys.updated_at),
         changeFrequency: 'monthly',
         priority: 0.7,

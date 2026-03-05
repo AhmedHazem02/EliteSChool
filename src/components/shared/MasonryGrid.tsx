@@ -5,6 +5,17 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { GalleryItem } from '@/types';
 
+// Static lookup maps for Tailwind JIT compatibility
+const DEFAULT_COL_MAP: Record<number, string> = {
+  1: 'columns-1', 2: 'columns-2', 3: 'columns-3', 4: 'columns-4',
+};
+const MD_COL_MAP: Record<number, string> = {
+  1: 'md:columns-1', 2: 'md:columns-2', 3: 'md:columns-3', 4: 'md:columns-4',
+};
+const LG_COL_MAP: Record<number, string> = {
+  1: 'lg:columns-1', 2: 'lg:columns-2', 3: 'lg:columns-3', 4: 'lg:columns-4',
+};
+
 interface MasonryGridProps {
   items: GalleryItem[];
   locale: string;
@@ -22,9 +33,9 @@ export default function MasonryGrid({
     <div
       className={cn(
         'gap-4',
-        `columns-${columns.default}`,
-        `md:columns-${columns.md}`,
-        `lg:columns-${columns.lg}`,
+        DEFAULT_COL_MAP[columns.default] ?? 'columns-1',
+        MD_COL_MAP[columns.md] ?? 'md:columns-2',
+        LG_COL_MAP[columns.lg] ?? 'lg:columns-3',
         '[column-gap:1rem]'
       )}
     >

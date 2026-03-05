@@ -5,7 +5,6 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
 import FloatingParticles from '@/components/shared/FloatingParticles';
 import MagneticButton from '@/components/shared/MagneticButton';
 import SplitText from '@/components/shared/SplitText';
@@ -58,6 +57,7 @@ export default function HeroSection({ locale, videoUrl, heroImageUrl, dbTitle, d
             muted
             loop
             playsInline
+            preload="metadata"
             poster={heroImageUrl || '/hero-bg.jpg'}
             className="absolute inset-0 w-full h-full object-cover scale-110"
           >

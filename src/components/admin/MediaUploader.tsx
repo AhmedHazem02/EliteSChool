@@ -38,6 +38,8 @@ export default function MediaUploader() {
     }
 
     setFile(f);
+    // Revoke previous preview URL to avoid memory leak
+    if (preview) URL.revokeObjectURL(preview);
     setPreview(URL.createObjectURL(f));
     setStatus('idle');
   }

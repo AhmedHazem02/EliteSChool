@@ -1,7 +1,38 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+
+// ── Auth Guard ────────────────────────────────────────────────
+
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) throw new Error('Unauthorized');
+  return user;
+}
+
+// ── Allowed fields for site_settings ──────────────────────────
+
+const ALLOWED_SETTINGS_KEYS = new Set([
+  'hero_video_url',
+  'hero_image_url',
+  'school_name_en',
+  'school_name_ar',
+  'phone',
+  'email',
+  'address_en',
+  'address_ar',
+  'facebook_url',
+  'twitter_url',
+  'instagram_url',
+  'youtube_url',
+  'whatsapp_number',
+  'google_maps_url',
+  'meta_description_en',
+  'meta_description_ar',
+]);
 
 // ── Academic Systems ──────────────────────────────────────────
 
@@ -34,8 +65,13 @@ export async function saveAcademicSystem(
   payload: SystemPayload,
   fees: Omit<FeePayload, 'system_id'>[]
 ): Promise<{ success: boolean; error?: string; newId?: string }> {
-  const supabase = createAdminClient();
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
 
+  const supabase = createAdminClient();
   let id = systemId;
 
   if (id) {
@@ -51,10 +87,15 @@ export async function saveAcademicSystem(
     id = data.id as string;
   }
 
-  // Sync fees: delete all then re-insert
-  await supabase.from('tuition_fees').delete().eq('system_id', id);
+  // Sync fees: delete all existing, then insert new set (atomic replacement)
+  const { error: deleteErr } = await supabase.from('tuition_fees').delete().eq('system_id', id);
+  if (deleteErr) return { success: false, error: `Fee cleanup failed: ${deleteErr.message}` };
+
   if (fees.length > 0) {
-    await supabase.from('tuition_fees').insert(fees.map((f) => ({ ...f, system_id: id })));
+    const { error: insertErr } = await supabase.from('tuition_fees').insert(
+      fees.map((f) => ({ ...f, system_id: id }))
+    );
+    if (insertErr) return { success: false, error: `Fee insert failed: ${insertErr.message}` };
   }
 
   revalidatePath('/ar/programs', 'page');
@@ -68,6 +109,12 @@ export async function saveAcademicSystem(
 export async function deleteAcademicSystem(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = createAdminClient();
   const { error } = await supabase.from('academic_systems').delete().eq('id', id);
   if (error) return { success: false, error: error.message };
@@ -97,6 +144,12 @@ export async function savePost(
   postId: string | undefined,
   payload: PostPayload
 ): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = createAdminClient();
   let error;
 
@@ -119,6 +172,12 @@ export async function savePost(
 }
 
 export async function deletePost(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = createAdminClient();
   const { error } = await supabase.from('posts').delete().eq('id', id);
   if (error) return { success: false, error: error.message };
@@ -134,6 +193,12 @@ export async function deletePost(id: string): Promise<{ success: boolean; error?
 // ── Gallery ───────────────────────────────────────────────────
 
 export async function deleteGalleryItem(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = createAdminClient();
   const { error } = await supabase.from('gallery').delete().eq('id', id);
   if (error) return { success: false, error: error.message };
@@ -150,11 +215,28 @@ export async function deleteGalleryItem(id: string): Promise<{ success: boolean;
 
 export async function saveSiteSettings(
   id: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: Record<string, any>
+  form: Record<string, unknown>
 ): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
+  // Whitelist: only allow known settings keys
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(form)) {
+    if (ALLOWED_SETTINGS_KEYS.has(key)) {
+      sanitized[key] = value;
+    }
+  }
+
+  if (Object.keys(sanitized).length === 0) {
+    return { success: false, error: 'No valid fields provided' };
+  }
+
   const supabase = createAdminClient();
-  const { error } = await supabase.from('site_settings').update(form).eq('id', id);
+  const { error } = await supabase.from('site_settings').update(sanitized).eq('id', id);
   if (error) return { success: false, error: error.message };
 
   revalidatePath('/ar', 'page');

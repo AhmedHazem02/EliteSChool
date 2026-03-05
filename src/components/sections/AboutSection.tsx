@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import SectionHeader from '@/components/shared/SectionHeader';
 import ScrollReveal from '@/components/shared/ScrollReveal';
-import ImageReveal from '@/components/shared/ImageReveal';
 import MagneticButton from '@/components/shared/MagneticButton';
 import GeometricDecoration from '@/components/shared/GeometricDecoration';
 import { Button } from '@/components/ui/button';
@@ -26,15 +25,19 @@ interface AboutSectionProps {
   dbSubtitle?: string | null;
   dbDescription?: string | null;
   dbHighlights?: { en: string; ar: string }[] | null;
+  dbFoundedYear?: string | null;
+  dbEstLabel?: string | null;
 }
 
-export default function AboutSection({ locale, imageUrl, dbTitle, dbSubtitle, dbDescription, dbHighlights }: AboutSectionProps) {
+export default function AboutSection({ locale, imageUrl, dbTitle, dbSubtitle, dbDescription, dbHighlights, dbFoundedYear, dbEstLabel }: AboutSectionProps) {
   const t = useTranslations('about');
   const isRTL = locale === 'ar';
 
   const titleText = dbTitle || t('title');
   const subtitleText = dbSubtitle || t('subtitle');
   const descriptionText = dbDescription || t('description');
+  const foundedYear = dbFoundedYear || '2018';
+  const estLabel = dbEstLabel || 'Est.';
 
   // Use DB highlights if present, otherwise fall back to hardcoded defaults
   const activeHighlights = (dbHighlights && dbHighlights.length > 0) ? dbHighlights : highlights;
@@ -53,9 +56,15 @@ export default function AboutSection({ locale, imageUrl, dbTitle, dbSubtitle, db
           {/* Image with cinematic reveal */}
           <ScrollReveal direction={isRTL ? 'right' : 'left'}>
             <div className="relative">
-              <ImageReveal direction={isRTL ? 'right' : 'left'} delay={0.2}>
-                <div className="relative z-10 rounded-3xl overflow-hidden shadow-luxury aspect-[4/3]">
-                  {imageUrl ? (
+              <div className="relative z-10 rounded-3xl overflow-hidden shadow-luxury aspect-[4/3] w-full">
+                {/* Placeholder — always visible as background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy/90 to-navy/70 flex items-center justify-center">
+                  <p className="text-gold/40 text-sm font-playfair">Elite Schools</p>
+                </div>
+
+                {/* Image on top when available */}
+                {imageUrl && (
+                  <div className="absolute inset-0 z-[1]">
                     <Image
                       src={imageUrl}
                       alt="Elite Schools Campus"
@@ -63,15 +72,12 @@ export default function AboutSection({ locale, imageUrl, dbTitle, dbSubtitle, db
                       className="object-cover hover:scale-105 transition-transform duration-700"
                       sizes="(max-width: 1024px) 100vw, 50vw"
                     />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy/90 to-navy/70 flex items-center justify-center">
-                      <p className="text-gold/40 text-sm font-playfair">Elite Schools</p>
-                    </div>
-                  )}
-                  {/* Subtle overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500" />
-                </div>
-              </ImageReveal>
+                  </div>
+                )}
+
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 z-10" />
+              </div>
 
               {/* Gold accent box — animated */}
               <motion.div
@@ -91,8 +97,8 @@ export default function AboutSection({ locale, imageUrl, dbTitle, dbSubtitle, db
                 whileHover={{ scale: 1.1 }}
                 transition={{ type: 'spring', stiffness: 300 }}
               >
-                <p className="text-2xl font-bold font-playfair">1999</p>
-                <p className="text-xs uppercase tracking-wider">Est.</p>
+                <p className="text-2xl font-bold font-playfair">{foundedYear}</p>
+                <p className="text-xs uppercase tracking-wider">{estLabel}</p>
               </motion.div>
 
               {/* Decorative corner ornament */}

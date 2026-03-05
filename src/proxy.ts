@@ -22,8 +22,9 @@ export async function proxy(request: NextRequest) {
 
   // Protect /admin routes — skip i18n and check auth
   if (pathname.startsWith('/admin')) {
+    // Check for Supabase auth token cookie (name + value must be present)
     const hasSession = Array.from(request.cookies.getAll()).some(
-      (cookie) => cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token')
+      (cookie) => cookie.name.startsWith('sb-') && cookie.name.endsWith('-auth-token') && cookie.value.length > 0
     );
 
     if (!hasSession) {

@@ -22,18 +22,26 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem('elite-theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = stored ?? (prefersDark ? 'dark' : 'light');
-    setTheme(initial);
-    document.documentElement.classList.toggle('dark', initial === 'dark');
+    try {
+      const stored = localStorage.getItem('elite-theme') as Theme | null;
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initial = stored ?? (prefersDark ? 'dark' : 'light');
+      setTheme(initial);
+      document.documentElement.classList.toggle('dark', initial === 'dark');
+    } catch {
+      // localStorage may be blocked in private browsing — use default
+    }
   }, []);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next = prev === 'light' ? 'dark' : 'light';
       document.documentElement.classList.toggle('dark', next === 'dark');
-      localStorage.setItem('elite-theme', next);
+      try {
+        localStorage.setItem('elite-theme', next);
+      } catch {
+        // localStorage may be blocked
+      }
       return next;
     });
   }, []);

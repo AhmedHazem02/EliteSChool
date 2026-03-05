@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function GalleryPage({ params }: Props) {
   const { locale } = await params;
@@ -27,6 +27,7 @@ export default async function GalleryPage({ params }: Props) {
   const { data: items } = await supabase
     .from('gallery')
     .select('id, media_url, caption_en, caption_ar, category, sort_order, media_type, is_active, created_at')
+    .eq('is_active', true)
     .order('sort_order');
 
   return (

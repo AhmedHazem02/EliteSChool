@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { createClient } from '@/lib/supabase/client';
+import { submitContactInquiry } from '@/app/actions/submissions';
 import { useRateLimit } from '@/hooks/useRateLimit';
 import { CheckCircle, Phone, Mail, MapPin, Send } from 'lucide-react';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
@@ -39,18 +39,14 @@ export default function ContactClientPage({ locale }: Props) {
     setLoading(true);
     setError(null);
 
-    // Store as an admissions record with no system (re-use table)
-    const supabase = createClient();
-    const { error: dbErr } = await supabase.from('admissions').insert({
-      parent_name: form.name,
-      student_name: 'N/A',
+    const result = await submitContactInquiry({
+      name: form.name,
       phone: form.phone,
-      email: form.email || null,
-      grade_level: 'contact-inquiry',
-      notes: form.message,
+      email: form.email || undefined,
+      message: form.message,
     });
 
-    if (dbErr) { setError(dbErr.message); } else { setSubmitted(true); }
+    if (!result.success) { setError(result.error ?? 'Submission failed'); } else { setSubmitted(true); }
     setLoading(false);
   }
 

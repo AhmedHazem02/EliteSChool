@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import MasonryGrid from '@/components/shared/MasonryGrid';
 import Lightbox from '@/components/shared/Lightbox';
 import { GALLERY_CATEGORIES_DATA } from '@/lib/constants';
@@ -16,7 +16,10 @@ export default function GalleryClientFilter({ items, locale }: GalleryClientFilt
   const [category, setCategory] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const filtered = category === 'all' ? items : items.filter(i => i.category === category);
+  const filtered = useMemo(
+    () => category === 'all' ? items : items.filter(i => i.category === category),
+    [category, items]
+  );
   const isAR = locale === 'ar';
 
   const allCats = [

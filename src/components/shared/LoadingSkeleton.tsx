@@ -14,13 +14,15 @@ export default function LoadingSkeleton({
   const items = Array.from({ length: count });
 
   if (variant === 'text') {
+    // Deterministic widths to avoid SSR/client hydration mismatch with Math.random()
+    const TEXT_WIDTHS = ['75%', '100%', '85%', '60%', '90%', '70%', '95%', '80%'];
     return (
       <div className={cn('space-y-2', className)}>
         {items.map((_, i) => (
           <div
             key={i}
             className="h-4 bg-gray-200 rounded animate-pulse"
-            style={{ width: `${Math.random() * 40 + 60}%` }}
+            style={{ width: TEXT_WIDTHS[i % TEXT_WIDTHS.length] }}
           />
         ))}
       </div>
