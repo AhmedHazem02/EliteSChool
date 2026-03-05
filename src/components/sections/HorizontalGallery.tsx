@@ -1,10 +1,9 @@
-'use client';
+﻿'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
-import SectionHeader from '@/components/shared/SectionHeader';
 import type { GalleryItem } from '@/types';
+import { Camera } from 'lucide-react';
 
 interface HorizontalGalleryProps {
   locale: string;
@@ -13,51 +12,33 @@ interface HorizontalGalleryProps {
   subtitle: string;
 }
 
-/**
- * Horizontal scroll section — scrolls horizontally while user scrolls vertically.
- * Creates a cinema-reel showcase effect for gallery items.
- */
-export default function HorizontalGallery({
-  locale,
-  items,
-  title,
-  subtitle,
-}: HorizontalGalleryProps) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const displayItems = items.slice(0, 8);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  });
-
-  // Translate the inner track from 0% to -(totalWidth - viewport)
-  const x = useTransform(scrollYProgress, [0, 1], ['2%', '-75%']);
-
+export default function HorizontalGallery({ locale, items, title, subtitle }: HorizontalGalleryProps) {
+  const displayItems = items.slice(0, 6);
   if (displayItems.length < 3) return null;
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative bg-navy"
-      // Height determines how long the pin lasts — more items = taller
-      style={{ height: `${Math.max(200, displayItems.length * 50)}vh` }}
-      data-scroll-container
-    >
-      {/* Sticky viewport */}
-      <div className="sticky top-0 h-screen flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="pt-16 pb-8 px-6 text-center">
-          <motion.p
-            className="text-gold uppercase tracking-[0.3em] text-xs font-semibold mb-3"
+    <section className="section-padding bg-white relative overflow-hidden" aria-label="Gallery Showcase">
+      {/* Decorative background blobs */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-gold/4 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-navy/4 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10">
+
+        {/* ── Header ── */}
+        <div className="text-center mb-14">
+          {/* Eyebrow */}
+          <motion.div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/5 mb-5"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            {subtitle}
-          </motion.p>
+            <Camera size={12} className="text-gold" />
+            <span className="text-gold text-[11px] uppercase tracking-[0.25em] font-semibold">{subtitle}</span>
+          </motion.div>
+
           <motion.h2
-            className="text-3xl md:text-4xl lg:text-5xl font-bold text-white font-playfair"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-navy font-playfair mb-4"
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -65,61 +46,88 @@ export default function HorizontalGallery({
           >
             {title}
           </motion.h2>
-          <div className="gold-divider-animated mx-auto mt-4" />
-        </div>
 
-        {/* Horizontal track */}
-        <div className="flex-1 flex items-center">
+          {/* Decorative divider */}
           <motion.div
-            className="flex gap-6 px-8"
-            style={{ x }}
+            className="flex items-center justify-center gap-3"
+            initial={{ opacity: 0, scaleX: 0 }}
+            whileInView={{ opacity: 1, scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
           >
-            {displayItems.map((item, i) => (
-              <div
-                key={item.id}
-                className="relative flex-shrink-0 w-[70vw] md:w-[45vw] lg:w-[30vw] aspect-[3/4] rounded-2xl overflow-hidden group"
-              >
-                <Image
-                  src={item.media_url}
-                  alt={(locale === 'ar' ? item.caption_ar : item.caption_en) || ''}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  sizes="(max-width: 768px) 70vw, (max-width: 1024px) 45vw, 30vw"
-                />
-                {/* Cinematic overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
-                {/* Gold corners on hover */}
-                <div className="absolute top-3 left-3 w-8 h-8 border-t-2 border-l-2 border-gold/0 group-hover:border-gold/60 transition-all duration-500 rounded-tl-sm" />
-                <div className="absolute top-3 right-3 w-8 h-8 border-t-2 border-r-2 border-gold/0 group-hover:border-gold/60 transition-all duration-500 rounded-tr-sm" />
-                <div className="absolute bottom-14 left-3 w-8 h-8 border-b-2 border-l-2 border-gold/0 group-hover:border-gold/60 transition-all duration-500 rounded-bl-sm" />
-                <div className="absolute bottom-14 right-3 w-8 h-8 border-b-2 border-r-2 border-gold/0 group-hover:border-gold/60 transition-all duration-500 rounded-br-sm" />
-
-                {/* Caption */}
-                <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <div className="w-8 h-0.5 bg-gold mb-2 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 delay-100" />
-                  <p className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">
-                    {locale === 'ar' ? item.caption_ar : item.caption_en}
-                  </p>
-                </div>
-
-                {/* Index number */}
-                <div className="absolute top-4 right-4 text-gold/30 text-6xl font-playfair font-bold select-none pointer-events-none">
-                  {String(i + 1).padStart(2, '0')}
-                </div>
-              </div>
-            ))}
+            <div className="w-20 h-px bg-gradient-to-r from-transparent to-gold" />
+            <div className="w-2 h-2 rotate-45 bg-gold" />
+            <div className="w-20 h-px bg-gradient-to-l from-transparent to-gold" />
           </motion.div>
         </div>
 
-        {/* Scroll progress indicator */}
-        <div className="pb-8 px-8">
-          <div className="max-w-xs mx-auto h-[2px] bg-white/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-gold-dark via-gold to-gold-light rounded-full"
-              style={{ scaleX: scrollYProgress, transformOrigin: 'left' }}
-            />
-          </div>
+        {/* ── Cards Grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayItems.map((item, i) => {
+            const caption = locale === 'ar' ? item.caption_ar : item.caption_en;
+            const category = item.category;
+
+            return (
+              <motion.article
+                key={item.id}
+                className="group bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-luxury transition-all duration-500 border border-navy/5 hover:border-gold/20"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ delay: i * 0.08, duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+                whileHover={{ y: -4 }}
+              >
+                {/* ── Image ── */}
+                <div className="relative aspect-[4/3] overflow-hidden bg-navy/5">
+                  <Image
+                    src={item.media_url}
+                    alt={caption || `Gallery image ${i + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+
+                  {/* Subtle top vignette */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-transparent" />
+
+                  {/* Category badge */}
+                  {category && (
+                    <div className="absolute top-3 left-3">
+                      <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-navy text-[10px] uppercase tracking-widest font-semibold shadow-sm border border-white/50 group-hover:bg-gold group-hover:text-white group-hover:border-gold transition-all duration-400">
+                        {category}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Index counter */}
+                  <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center border border-white/50 shadow-sm">
+                    <span className="text-navy/60 text-[11px] font-bold tabular-nums leading-none">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+
+                  {/* Gold shimmer on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gold/0 via-transparent to-transparent group-hover:from-gold/10 transition-all duration-500" />
+                </div>
+
+                {/* ── Info ── */}
+                <div className="p-4">
+                  {/* Gold accent bar */}
+                  <div className="w-8 h-0.5 bg-gold mb-3 group-hover:w-14 transition-all duration-400 rounded-full" />
+
+                  {caption ? (
+                    <p className="text-navy/70 text-sm leading-relaxed group-hover:text-navy transition-colors duration-300 line-clamp-2">
+                      {caption}
+                    </p>
+                  ) : (
+                    <p className="text-navy/30 text-sm italic">
+                      {locale === 'ar' ? 'بدون وصف' : 'No caption'}
+                    </p>
+                  )}
+                </div>
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -167,7 +167,7 @@
   }
 
   html {
-    /* scroll-behavior handled by SmoothScroll.tsx on desktop, native on touch */
+    scroll-behavior: smooth;
   }
 
   body {

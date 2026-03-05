@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -57,19 +58,32 @@ export default function HeroSection({ locale, videoUrl, heroImageUrl, dbTitle, d
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             poster={heroImageUrl || '/hero-bg.jpg'}
             className="absolute inset-0 w-full h-full object-cover scale-110"
           >
             <source src={videoUrl} type="video/mp4" />
           </video>
         ) : heroImageUrl ? (
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
-            style={{ backgroundImage: `url('${heroImageUrl}')` }}
+          <Image
+            src={heroImageUrl}
+            alt="Elite Schools Hero"
+            fill
+            priority
+            fetchPriority="high"
+            className="object-cover object-center scale-110"
+            sizes="100vw"
           />
         ) : (
-          <div className="absolute inset-0 bg-[url('/hero-bg.jpg')] bg-cover bg-center bg-no-repeat scale-110" />
+          <Image
+            src="/hero-bg.jpg"
+            alt="Elite Schools Hero"
+            fill
+            priority
+            fetchPriority="high"
+            className="object-cover object-center scale-110"
+            sizes="100vw"
+          />
         )}
 
         {/* Multi-layer overlay for cinematic depth */}
@@ -78,8 +92,8 @@ export default function HeroSection({ locale, videoUrl, heroImageUrl, dbTitle, d
         <div className="absolute inset-0 bg-gradient-to-r from-navy/30 via-transparent to-navy/30" />
       </motion.div>
 
-      {/* Floating gold particles */}
-      <FloatingParticles count={40} maxSize={2.5} minSize={0.5} speed={0.2} />
+      {/* Floating gold particles — count kept low to avoid main-thread jank */}
+      <FloatingParticles count={15} maxSize={2} minSize={0.5} speed={0.2} />
 
       {/* Decorative elements */}
       <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">

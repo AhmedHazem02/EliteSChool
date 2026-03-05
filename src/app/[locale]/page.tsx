@@ -1,17 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { buildMetadata, generateSchoolSchema } from '@/lib/seo';
+import dynamic from 'next/dynamic';
 import HeroSection from '@/components/sections/HeroSection';
 import StatsSection from '@/components/sections/StatsSection';
 import AboutSection from '@/components/sections/AboutSection';
-import ProgramsSection from '@/components/sections/ProgramsSection';
-import WhyChooseUsSection from '@/components/sections/WhyChooseUsSection';
-import FAQSection from '@/components/sections/FAQSectionClient';
-import GallerySection from '@/components/sections/GallerySection';
-import NewsSection from '@/components/sections/NewsSection';
-import TestimonialsSection from '@/components/sections/TestimonialsSection';
-import CTASection from '@/components/sections/CTASection';
-import HorizontalGallery from '@/components/sections/HorizontalGallery';
 import SectionDivider from '@/components/shared/SectionDivider';
+
+// Below-fold sections — loaded lazily to reduce initial JS bundle
+const WhyChooseUsSection = dynamic(() => import('@/components/sections/WhyChooseUsSection'));
+const ProgramsSection    = dynamic(() => import('@/components/sections/ProgramsSection'));
+const NewsSection        = dynamic(() => import('@/components/sections/NewsSection'));
+const GallerySection     = dynamic(() => import('@/components/sections/GallerySection'));
+const HorizontalGallery  = dynamic(() => import('@/components/sections/HorizontalGallery'));
+const TestimonialsSection = dynamic(() => import('@/components/sections/TestimonialsSection'));
+const FAQSection         = dynamic(() => import('@/components/sections/FAQSectionClient'));
+const CTASection         = dynamic(() => import('@/components/sections/CTASection'));
 
 interface Props {
   params: Promise<{ locale: string }>;

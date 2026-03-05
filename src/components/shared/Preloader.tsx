@@ -8,14 +8,10 @@ export default function Preloader() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Wait for page to fully load, with a minimum display time for the animation
-    const minTime = new Promise((r) => setTimeout(r, 2000));
-    const loaded = new Promise<void>((r) => {
-      if (document.readyState === 'complete') return r();
-      window.addEventListener('load', () => r(), { once: true });
-    });
-
-    Promise.all([minTime, loaded]).then(() => setLoading(false));
+    // Short fixed delay — just enough for the entrance animation.
+    // Do NOT wait for the `load` event (which blocks until video/all assets finish).
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
