@@ -18,20 +18,23 @@ async function requireAdmin() {
 const ALLOWED_SETTINGS_KEYS = new Set([
   'hero_video_url',
   'hero_image_url',
-  'school_name_en',
-  'school_name_ar',
-  'phone',
-  'email',
+  'logo_url',
+  'site_name_en',
+  'site_name_ar',
+  'contact_phone',
+  'contact_email',
   'address_en',
   'address_ar',
   'facebook_url',
   'twitter_url',
   'instagram_url',
   'youtube_url',
-  'whatsapp_number',
-  'google_maps_url',
-  'meta_description_en',
-  'meta_description_ar',
+  'whatsapp',
+  'map_url',
+  'seo_title_en',
+  'seo_title_ar',
+  'seo_description_en',
+  'seo_description_ar',
 ]);
 
 // ── Academic Systems ──────────────────────────────────────────
@@ -239,8 +242,8 @@ export async function saveSiteSettings(
   const { error } = await supabase.from('site_settings').update(sanitized).eq('id', id);
   if (error) return { success: false, error: error.message };
 
-  revalidatePath('/ar', 'page');
-  revalidatePath('/en', 'page');
+  revalidatePath('/ar', 'layout');
+  revalidatePath('/en', 'layout');
 
   return { success: true };
 }

@@ -13,6 +13,7 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionHeader from '@/components/shared/SectionHeader';
 import PageTransition from '@/components/shared/PageTransition';
 import ScrollReveal from '@/components/shared/ScrollReveal';
+import { useSettings } from '@/components/shared/SettingsProvider';
 
 interface Props {
   locale: string;
@@ -21,6 +22,7 @@ interface Props {
 export default function ContactClientPage({ locale }: Props) {
   const isAR = locale === 'ar';
   const { canSubmit } = useRateLimit();
+  const settings = useSettings();
 
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [loading, setLoading] = useState(false);
@@ -82,17 +84,17 @@ export default function ContactClientPage({ locale }: Props) {
                   />
                   <div className="space-y-5">
                     {[
-                      { icon: Phone, label: isAR ? 'الهاتف' : 'Phone', value: '+20 (xx) xxxxxxxx', href: 'tel:+20xxxxxxxxxx' },
-                      { icon: Mail, label: isAR ? 'البريد الإلكتروني' : 'Email', value: 'info@elite-schools.com', href: 'mailto:info@elite-schools.com' },
-                      { icon: MapPin, label: isAR ? 'العنوان' : 'Address', value: isAR ? 'القاهرة، مصر' : 'Cairo, Egypt', href: '#' },
-                    ].map((item) => (
-                      <a key={item.label} href={item.href} className="flex items-center gap-4 group">
+                      settings?.contact_phone ? { icon: Phone, label: isAR ? 'الهاتف' : 'Phone', value: settings.contact_phone, href: `tel:${settings.contact_phone}` } : null,
+                      settings?.contact_email ? { icon: Mail, label: isAR ? 'البريد الإلكتروني' : 'Email', value: settings.contact_email, href: `mailto:${settings.contact_email}` } : null,
+                      (settings?.address_en || settings?.address_ar) ? { icon: MapPin, label: isAR ? 'العنوان' : 'Address', value: isAR ? (settings?.address_ar ?? settings?.address_en ?? '') : (settings?.address_en ?? settings?.address_ar ?? ''), href: settings?.map_url ?? '#' } : null,
+                    ].filter(Boolean).map((item) => (
+                      <a key={item!.label} href={item!.href} className="flex items-center gap-4 group">
                         <div className="w-11 h-11 rounded-xl bg-navy/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                           <item.icon className="text-navy group-hover:text-gold transition-colors" size={20} />
                         </div>
                         <div>
-                          <p className="text-xs text-navy/50">{item.label}</p>
-                          <p className="text-navy font-medium">{item.value}</p>
+                          <p className="text-xs text-navy/50">{item!.label}</p>
+                          <p className="text-navy font-medium">{item!.value}</p>
                         </div>
                       </a>
                     ))}

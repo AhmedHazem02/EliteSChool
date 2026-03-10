@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 import type { Locale } from '@/types';
 import { NAV_LINKS } from '@/lib/constants';
+import { useSettings } from '@/components/shared/SettingsProvider';
 
 interface FooterProps {
   locale: Locale;
@@ -13,6 +14,7 @@ interface FooterProps {
 
 export default function Footer({ locale }: FooterProps) {
   const t = useTranslations();
+  const settings = useSettings();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -42,14 +44,16 @@ export default function Footer({ locale }: FooterProps) {
             {/* Social */}
             <div className="flex gap-3 mt-4">
               {[
-                { icon: Facebook, label: 'Facebook' },
-                { icon: Instagram, label: 'Instagram' },
-                { icon: Twitter, label: 'Twitter' },
-                { icon: Youtube, label: 'YouTube' },
-              ].map(({ icon: Icon, label }) => (
+                { icon: Facebook, label: 'Facebook', href: settings?.facebook_url },
+                { icon: Instagram, label: 'Instagram', href: settings?.instagram_url },
+                { icon: Twitter, label: 'Twitter', href: settings?.twitter_url },
+                { icon: Youtube, label: 'YouTube', href: settings?.youtube_url },
+              ].filter(({ href }) => !!href).map(({ icon: Icon, label, href }) => (
                 <a
                   key={label}
-                  href="#"
+                  href={href!}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-9 h-9 flex items-center justify-center rounded-full border border-gold/20 text-white/50 hover:text-gold hover:border-gold hover:shadow-gold transition-all duration-300 hover:scale-110 hover:bg-gold/5"
                 >
@@ -105,18 +109,26 @@ export default function Footer({ locale }: FooterProps) {
               {t('footer.contactUs')}
             </h3>
             <ul className="space-y-3">
-              <li className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                <span className="text-white/60 text-sm">+20 123 456 7890</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                <span className="text-white/60 text-sm">info@eliteschools.edu</span>
-              </li>
-              <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
-                <span className="text-white/60 text-sm leading-relaxed">Cairo, Egypt</span>
-              </li>
+              {settings?.contact_phone && (
+                <li className="flex items-start gap-2.5">
+                  <Phone className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <a href={`tel:${settings.contact_phone}`} className="text-white/60 text-sm hover:text-gold transition-colors">{settings.contact_phone}</a>
+                </li>
+              )}
+              {settings?.contact_email && (
+                <li className="flex items-start gap-2.5">
+                  <Mail className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <a href={`mailto:${settings.contact_email}`} className="text-white/60 text-sm hover:text-gold transition-colors">{settings.contact_email}</a>
+                </li>
+              )}
+              {(settings?.address_en || settings?.address_ar) && (
+                <li className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-gold mt-0.5 flex-shrink-0" />
+                  <span className="text-white/60 text-sm leading-relaxed">
+                    {locale === 'ar' ? (settings?.address_ar ?? settings?.address_en) : (settings?.address_en ?? settings?.address_ar)}
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
         </div>

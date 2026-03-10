@@ -9,6 +9,7 @@ import SplitText from '@/components/shared/SplitText';
 import { Button } from '@/components/ui/button';
 import GeometricDecoration from '@/components/shared/GeometricDecoration';
 import { Phone, Mail, MapPin } from 'lucide-react';
+import { useSettings } from '@/components/shared/SettingsProvider';
 
 interface CTASectionProps {
   locale: string;
@@ -16,6 +17,7 @@ interface CTASectionProps {
 
 export default function CTASection({ locale }: CTASectionProps) {
   const t = useTranslations('cta');
+  const settings = useSettings();
 
   return (
     <AuroraBackground variant="burgundy">
@@ -76,15 +78,22 @@ export default function CTASection({ locale }: CTASectionProps) {
 
               {/* Quick contact info — glass cards */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
-                <a href="tel:+20xxxxxxxxxx" className="flex items-center gap-2.5 text-white/60 hover:text-gold transition-colors duration-300 px-4 py-2 rounded-full glass-light hover:border-gold/30">
-                  <Phone size={14} className="text-gold/70" /> +20 (xx) xxxxxxxx
-                </a>
-                <a href="mailto:info@elite-schools.com" className="flex items-center gap-2.5 text-white/60 hover:text-gold transition-colors duration-300 px-4 py-2 rounded-full glass-light hover:border-gold/30">
-                  <Mail size={14} className="text-gold/70" /> info@elite-schools.com
-                </a>
-                <span className="flex items-center gap-2.5 text-white/60 px-4 py-2 rounded-full glass-light">
-                  <MapPin size={14} className="text-gold/70" /> Cairo, Egypt
-                </span>
+                {settings?.contact_phone && (
+                  <a href={`tel:${settings.contact_phone}`} className="flex items-center gap-2.5 text-white/60 hover:text-gold transition-colors duration-300 px-4 py-2 rounded-full glass-light hover:border-gold/30">
+                    <Phone size={14} className="text-gold/70" /> {settings.contact_phone}
+                  </a>
+                )}
+                {settings?.contact_email && (
+                  <a href={`mailto:${settings.contact_email}`} className="flex items-center gap-2.5 text-white/60 hover:text-gold transition-colors duration-300 px-4 py-2 rounded-full glass-light hover:border-gold/30">
+                    <Mail size={14} className="text-gold/70" /> {settings.contact_email}
+                  </a>
+                )}
+                {(settings?.address_en || settings?.address_ar) && (
+                  <span className="flex items-center gap-2.5 text-white/60 px-4 py-2 rounded-full glass-light">
+                    <MapPin size={14} className="text-gold/70" />
+                    {locale === 'ar' ? (settings?.address_ar ?? settings?.address_en) : (settings?.address_en ?? settings?.address_ar)}
+                  </span>
+                )}
               </div>
             </div>
           </ScrollReveal>

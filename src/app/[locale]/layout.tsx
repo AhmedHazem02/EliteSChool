@@ -11,6 +11,8 @@ import BackToTop from '@/components/shared/BackToTop';
 import Preloader from '@/components/shared/Preloader';
 import SmoothScroll from '@/components/shared/SmoothScroll';
 import ThemeProvider from '@/components/shared/ThemeProvider';
+import { SettingsProvider } from '@/components/shared/SettingsProvider';
+import { createClient } from '@/lib/supabase/server';
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 export async function generateMetadata({
@@ -61,9 +63,16 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
+  const supabase = await createClient();
+  const { data: settings } = await supabase
+    .from('site_settings')
+    .select('*')
+    .single();
+
   return (
     <div lang={locale} dir={dir}>
         <NextIntlClientProvider messages={messages}>
+          <SettingsProvider settings={settings}>
           <ThemeProvider>
           <SmoothScroll>
           <Preloader />
@@ -77,6 +86,7 @@ export default async function LocaleLayout({
           <BackToTop />
           </SmoothScroll>
           </ThemeProvider>
+          </SettingsProvider>
         </NextIntlClientProvider>
     </div>
   );
