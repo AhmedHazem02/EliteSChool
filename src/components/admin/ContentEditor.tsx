@@ -58,6 +58,19 @@ function parseAboutExtra(extra_data: unknown) {
   return { founded_year: '1999', est_label: 'Est.' };
 }
 
+function parseAboutMissionVision(extra_data: unknown) {
+  if (extra_data && typeof extra_data === 'object') {
+    const d = extra_data as Record<string, unknown>;
+    return {
+      mission_en: typeof d.mission_en === 'string' ? d.mission_en : '',
+      mission_ar: typeof d.mission_ar === 'string' ? d.mission_ar : '',
+      vision_en: typeof d.vision_en === 'string' ? d.vision_en : '',
+      vision_ar: typeof d.vision_ar === 'string' ? d.vision_ar : '',
+    };
+  }
+  return { mission_en: '', mission_ar: '', vision_en: '', vision_ar: '' };
+}
+
 export default function ContentEditor({ section, initialData }: ContentEditorProps) {
   const { t } = useAdminI18n();
   const isAbout = section === 'about';
@@ -81,6 +94,19 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
   const [estLabel, setEstLabel] = useState(() =>
     isAbout ? parseAboutExtra(initialData?.extra_data).est_label : ''
   );
+  const [missionEn, setMissionEn] = useState(() =>
+    isAbout ? parseAboutMissionVision(initialData?.extra_data).mission_en : ''
+  );
+  const [missionAr, setMissionAr] = useState(() =>
+    isAbout ? parseAboutMissionVision(initialData?.extra_data).mission_ar : ''
+  );
+  const [visionEn, setVisionEn] = useState(() =>
+    isAbout ? parseAboutMissionVision(initialData?.extra_data).vision_en : ''
+  );
+  const [visionAr, setVisionAr] = useState(() =>
+    isAbout ? parseAboutMissionVision(initialData?.extra_data).vision_ar : ''
+  );
+
   const [showAboutImage, setShowAboutImage] = useState<boolean>(() => {
     if (!isAbout) return true;
     const ex = initialData?.extra_data;
@@ -113,7 +139,7 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
 
     let parsedExtra: unknown;
     if (isAbout) {
-      parsedExtra = { highlights, founded_year: foundedYear, est_label: estLabel, show_about_image: showAboutImage };
+      parsedExtra = { highlights, founded_year: foundedYear, est_label: estLabel, show_about_image: showAboutImage, mission_en: missionEn, mission_ar: missionAr, vision_en: visionEn, vision_ar: visionAr };
     } else {
       try { parsedExtra = JSON.parse(extraData); } catch { parsedExtra = extraData; }
     }
@@ -228,6 +254,35 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
               mediaType="image"
               maxSize={FILE_SIZE_LIMITS.IMAGE}
               hint="تُعرض في Landing Page بجانب النص — الأبعاد المثالية: 800×600"
+            />
+          </div>
+
+          {/* Mission & Vision */}
+          <div className="rounded-2xl border border-navy/10 bg-navy/[0.02] p-5 space-y-4">
+            <p className="text-sm font-semibold text-navy">الرسالة — Mission</p>
+            <BilingualInput
+              labelEn="Mission (English)"
+              labelAr="الرسالة (عربي)"
+              valueEn={missionEn}
+              valueAr={missionAr}
+              onChangeEn={setMissionEn}
+              onChangeAr={setMissionAr}
+              multiline
+              rows={3}
+            />
+          </div>
+
+          <div className="rounded-2xl border border-gold/20 bg-gold/[0.03] p-5 space-y-4">
+            <p className="text-sm font-semibold text-navy">الرؤية — Vision</p>
+            <BilingualInput
+              labelEn="Vision (English)"
+              labelAr="الرؤية (عربي)"
+              valueEn={visionEn}
+              valueAr={visionAr}
+              onChangeEn={setVisionEn}
+              onChangeAr={setVisionAr}
+              multiline
+              rows={3}
             />
           </div>
 
