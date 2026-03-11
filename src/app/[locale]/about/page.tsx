@@ -38,6 +38,7 @@ export default async function AboutPage({ params }: Props) {
   type ExtraData = {
     mission_en?: string; mission_ar?: string;
     vision_en?: string; vision_ar?: string;
+    section_subtitle_en?: string; section_subtitle_ar?: string;
   };
   const extra = (aboutData?.extra_data ?? {}) as ExtraData;
 
@@ -82,7 +83,11 @@ export default async function AboutPage({ params }: Props) {
           <div className="container mx-auto px-4 max-w-4xl">
             <SectionHeader
               title={isAR ? 'رسالتنا ورؤيتنا' : 'Our Mission & Vision'}
-              subtitle={isAR ? 'نسعى لتشكيل قادة المستقبل' : 'Shaping the leaders of tomorrow'}
+              subtitle={
+                isAR
+                  ? (extra.section_subtitle_ar || 'نسعى لتشكيل قادة المستقبل')
+                  : (extra.section_subtitle_en || 'Shaping the leaders of tomorrow')
+              }
             />
 
             <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">

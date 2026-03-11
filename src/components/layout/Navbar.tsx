@@ -94,10 +94,15 @@ export default function Navbar({ locale }: NavbarProps) {
               <MagneticButton strength={0.2}>
                 <Link
                   href={`/${locale}/admissions`}
-                  className="relative overflow-hidden bg-burgundy text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(201,168,76,0.35)] active:scale-[0.98] group btn-ripple"
+                  className="relative overflow-hidden flex items-center gap-2 bg-gradient-to-r from-gold-light via-gold to-gold-dark text-navy-dark px-6 py-2.5 rounded-full text-sm font-black tracking-wide border border-gold/20 shadow-[0_4px_18px_rgba(201,168,76,0.4)] transition-all duration-300 hover:shadow-[0_6px_32px_rgba(201,168,76,0.65)] hover:scale-[1.05] hover:-translate-y-px active:scale-[0.97] group"
                 >
                   <span className="relative z-10">{t('nav.applyNow')}</span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  {/* Arrow icon */}
+                  <svg className="relative z-10 w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                  {/* Shimmer */}
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Link>
               </MagneticButton>
             </div>

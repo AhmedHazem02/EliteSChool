@@ -66,9 +66,11 @@ function parseAboutMissionVision(extra_data: unknown) {
       mission_ar: typeof d.mission_ar === 'string' ? d.mission_ar : '',
       vision_en: typeof d.vision_en === 'string' ? d.vision_en : '',
       vision_ar: typeof d.vision_ar === 'string' ? d.vision_ar : '',
+      section_subtitle_en: typeof d.section_subtitle_en === 'string' ? d.section_subtitle_en : '',
+      section_subtitle_ar: typeof d.section_subtitle_ar === 'string' ? d.section_subtitle_ar : '',
     };
   }
-  return { mission_en: '', mission_ar: '', vision_en: '', vision_ar: '' };
+  return { mission_en: '', mission_ar: '', vision_en: '', vision_ar: '', section_subtitle_en: '', section_subtitle_ar: '' };
 }
 
 export default function ContentEditor({ section, initialData }: ContentEditorProps) {
@@ -106,6 +108,12 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
   const [visionAr, setVisionAr] = useState(() =>
     isAbout ? parseAboutMissionVision(initialData?.extra_data).vision_ar : ''
   );
+  const [sectionSubtitleEn, setSectionSubtitleEn] = useState(() =>
+    isAbout ? parseAboutMissionVision(initialData?.extra_data).section_subtitle_en : ''
+  );
+  const [sectionSubtitleAr, setSectionSubtitleAr] = useState(() =>
+    isAbout ? parseAboutMissionVision(initialData?.extra_data).section_subtitle_ar : ''
+  );
 
   const [showAboutImage, setShowAboutImage] = useState<boolean>(() => {
     if (!isAbout) return true;
@@ -139,7 +147,7 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
 
     let parsedExtra: unknown;
     if (isAbout) {
-      parsedExtra = { highlights, founded_year: foundedYear, est_label: estLabel, show_about_image: showAboutImage, mission_en: missionEn, mission_ar: missionAr, vision_en: visionEn, vision_ar: visionAr };
+      parsedExtra = { highlights, founded_year: foundedYear, est_label: estLabel, show_about_image: showAboutImage, mission_en: missionEn, mission_ar: missionAr, vision_en: visionEn, vision_ar: visionAr, section_subtitle_en: sectionSubtitleEn, section_subtitle_ar: sectionSubtitleAr };
     } else {
       try { parsedExtra = JSON.parse(extraData); } catch { parsedExtra = extraData; }
     }
@@ -254,6 +262,19 @@ export default function ContentEditor({ section, initialData }: ContentEditorPro
               mediaType="image"
               maxSize={FILE_SIZE_LIMITS.IMAGE}
               hint="تُعرض في Landing Page بجانب النص — الأبعاد المثالية: 800×600"
+            />
+          </div>
+
+          {/* Section subtitle */}
+          <div className="rounded-2xl border border-navy/10 bg-navy/[0.02] p-5 space-y-4">
+            <p className="text-sm font-semibold text-navy">نص تحت عنوان &ldquo;رسالتنا ورؤيتنا&rdquo;</p>
+            <BilingualInput
+              labelEn="Section subtitle (English)"
+              labelAr="النص التعريفي (عربي)"
+              valueEn={sectionSubtitleEn}
+              valueAr={sectionSubtitleAr}
+              onChangeEn={setSectionSubtitleEn}
+              onChangeAr={setSectionSubtitleAr}
             />
           </div>
 
