@@ -43,7 +43,7 @@ export default function LoginClient() {
     setLoading(true);
     setError(null);
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     if (authError) {
       setError(authError.message);
@@ -51,7 +51,8 @@ export default function LoginClient() {
       return;
     }
 
-    router.push('/admin');
+    const role = data.user?.user_metadata?.role;
+    router.push(role === 'admissions' ? '/admin/admissions' : '/admin');
     router.refresh();
   }
 

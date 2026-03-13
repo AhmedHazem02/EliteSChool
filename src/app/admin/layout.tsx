@@ -17,10 +17,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) redirect('/login');
 
   const adminLocale = await getAdminLocale();
+  const userRole = (user.user_metadata?.role as string | undefined) ?? 'admin';
 
   return (
     <AdminI18nProvider initialLocale={adminLocale}>
-      <AdminShell userEmail={user.email ?? ''}>
+      <AdminShell userEmail={user.email ?? ''} userRole={userRole}>
         {children}
       </AdminShell>
     </AdminI18nProvider>

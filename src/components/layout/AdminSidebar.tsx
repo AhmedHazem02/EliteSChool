@@ -35,9 +35,10 @@ const labelKeyMap: Record<string, string> = {
 
 interface AdminSidebarProps {
   userEmail: string;
+  userRole: string;
 }
 
-export default function AdminSidebar({ userEmail }: AdminSidebarProps) {
+export default function AdminSidebar({ userEmail, userRole }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -75,7 +76,10 @@ export default function AdminSidebar({ userEmail }: AdminSidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
-        {ADMIN_NAV_LINKS.map((link) => {
+        {(userRole === 'admissions'
+          ? ADMIN_NAV_LINKS.filter(l => l.href === '/admin/admissions')
+          : ADMIN_NAV_LINKS
+        ).map((link) => {
           const isActive = link.href === '/admin'
             ? pathname === '/admin'
             : pathname.startsWith(link.href);
